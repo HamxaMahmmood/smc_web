@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #1a3a6b;
+  --navy-light: #2b5199;
+  --sky: #e8f0fb;
+  --border: #c8d8f0;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --white: #ffffff;
+  --surface: #f8faff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  margin: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-slip,
+  #print-slip * {
+    visibility: visible;
+  }
+  #print-slip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 210mm;
+  }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}

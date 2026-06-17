@@ -1,0 +1,7 @@
+{
+  "/api/patients/route": "app/api/patients/route.js",
+  "/api/patients/search/route": "app/api/patients/search/route.js",
+  "/new-patient/page": "app/new-patient/page.js",
+  "/page": "app/page.js",
+  "/search/page": "app/search/page.js"
+}
