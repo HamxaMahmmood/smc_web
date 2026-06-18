@@ -8,13 +8,18 @@ interface Medication {
   dosage: string;
   duration: string;
   instruction: string;
+  frequencyUrdu?: string;
+  dosageUrdu?: string;
+  durationUrdu?: string;
+  instructionUrdu?: string;
 }
 
 interface PrintSlipProps {
   patient: {
     name: string;
     gender: string;
-    age: number;
+    age: number | string;
+    ageUnit?: string;
     mrNumber: string;
     complaint: string;
     clinicalExamination: string;
@@ -22,26 +27,62 @@ interface PrintSlipProps {
     investigation: string;
     medications: Medication[];
     visitDate?: string | Date;
+    clinic?: string;
+    contact?: string;
+    address?: string;
+    followUpDate?: string;
   };
 }
+
+const CLINICS: Record<string, { name: string; detail: string }> = {
+  islamabad: {
+    name: "Islamabad Specialist Clinic",
+    detail: "Timings: 7:30 PM – 9:30 PM",
+  },
+  siddique: {
+    name: "Siddique Executive Clinic, Gulistan Colony",
+    detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM",
+  },
+};
 
 export default function PrintSlip({ patient }: PrintSlipProps) {
   const now = patient.visitDate ? new Date(patient.visitDate) : new Date();
   const dateStr = now.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+    day: "2-digit", month: "2-digit", year: "numeric",
   });
   const timeStr = now.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
+    hour: "2-digit", minute: "2-digit", hour12: false,
   });
+
+  const clinic = patient.clinic ? CLINICS[patient.clinic] : CLINICS.islamabad;
+
+  // Parse complaint into numbered list
+  const complaintLines = patient.complaint
+    ? patient.complaint.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  // Parse GPE and Systemic from combined string
+  let gpeText = "";
+  let systemicText = "";
+  if (patient.clinicalExamination) {
+    const gpeMatch = patient.clinicalExamination.match(/GPE:\s*([\s\S]*?)(?:\n\nSystemic:|$)/);
+    const sysMatch = patient.clinicalExamination.match(/Systemic:\s*([\s\S]*?)$/);
+    gpeText = gpeMatch ? gpeMatch[1].trim() : patient.clinicalExamination;
+    systemicText = sysMatch ? sysMatch[1].trim() : "";
+  }
+
+  // Format follow-up date
+  let followUpDisplay = "";
+  if (patient.followUpDate) {
+    const fd = new Date(patient.followUpDate + "T00:00:00");
+    followUpDisplay = fd.toLocaleDateString("en-GB", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    });
+  }
 
   return (
     <div
       id="print-slip"
-      className="bg-white text-black font-serif"
       style={{
         width: "210mm",
         minHeight: "297mm",
@@ -49,160 +90,157 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         fontFamily: "Georgia, serif",
         fontSize: "11pt",
         lineHeight: "1.4",
+        background: "white",
+        color: "black",
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          borderBottom: "3px solid #1a3a6b",
-          paddingBottom: "6mm",
-          marginBottom: "4mm",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "26pt",
-            fontWeight: "bold",
-            color: "#1a3a6b",
-            textAlign: "center",
-            letterSpacing: "0.04em",
-            margin: 0,
-          }}
-        >
-          Siddique Medical Complex
+      {/* ── Header ── */}
+      <div style={{ borderBottom: "3px solid #1a3a6b", paddingBottom: "6mm", marginBottom: "4mm" }}>
+        <h1 style={{ fontSize: "22pt", fontWeight: "bold", color: "#1a3a6b", textAlign: "center", letterSpacing: "0.03em", margin: 0 }}>
+          Prof. Dr. Zahid Mahmood
         </h1>
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: "9pt",
-            color: "#555",
-            margin: "2mm 0 0 0",
-          }}
-        >
-          Professional Medical Care
+        <p style={{ textAlign: "center", fontSize: "9pt", color: "#444", margin: "1.5mm 0 0" }}>
+          MBBS, FCPS &nbsp;·&nbsp; Consultant Paediatrician
+        </p>
+        <p style={{ textAlign: "center", fontSize: "9pt", color: "#444", margin: "1.5mm 0 0" }}>
+          0333-6507982 &nbsp;·&nbsp; 0312-6507982
         </p>
 
-        {/* Doctor Info Row */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: "4mm",
-            borderTop: "1px solid #ccc",
-            paddingTop: "3mm",
-          }}
-        >
+        <div style={{ borderTop: "1px solid #ccc", marginTop: "4mm", paddingTop: "3mm", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ fontWeight: "bold", fontSize: "12pt", margin: 0 }}>
-              Dr. Zahid Mahmood
+            <p style={{ fontWeight: "bold", fontSize: "10pt", margin: 0, color: "#1a3a6b" }}>
+              {clinic.name}
             </p>
-            <p style={{ fontSize: "9pt", color: "#444", margin: "1mm 0 0 0" }}>
-              MBBS, FCPS
-            </p>
-            <p style={{ fontSize: "9pt", color: "#444", margin: 0 }}>
-              Consultant Paediatrician
+            <p style={{ fontSize: "8.5pt", color: "#555", margin: "1mm 0 0" }}>
+              {clinic.detail}
             </p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <p style={{ fontSize: "9pt", color: "#444", margin: 0 }}>
-              PMDC Reg. No: 28355-P
-            </p>
+            <p style={{ fontSize: "8.5pt", color: "#444", margin: 0 }}>PMDC Reg. No: 28355-P</p>
           </div>
         </div>
       </div>
 
-      {/* Patient Info Bar */}
-      <div
-        style={{
-          background: "#f0f4fa",
-          border: "1px solid #c8d8f0",
-          borderRadius: "3mm",
-          padding: "3mm 5mm",
-          marginBottom: "5mm",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "2mm",
-        }}
-      >
-        <span style={{ fontWeight: "bold", fontSize: "11pt" }}>
-          {patient.name}
-        </span>
-        <span style={{ fontSize: "10pt" }}>
-          {patient.gender} | {patient.age} Y
-        </span>
-        <span style={{ fontSize: "10pt" }}>
-          <strong>MR#:</strong> {patient.mrNumber}
-        </span>
-        <span style={{ fontSize: "9pt", color: "#555" }}>
-          {dateStr} — {timeStr}
-        </span>
+      {/* ── Patient Info Bar ── */}
+      <div style={{
+        background: "#f0f4fa", border: "1px solid #c8d8f0", borderRadius: "3mm",
+        padding: "3mm 5mm", marginBottom: "5mm", display: "flex",
+        flexWrap: "wrap", gap: "3mm", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <span style={{ fontWeight: "bold", fontSize: "11pt" }}>{patient.name}</span>
+        <span style={{ fontSize: "10pt" }}>{patient.gender} | {patient.age} {patient.ageUnit} old</span>
+        {patient.contact && <span style={{ fontSize: "9.5pt" }}>📞 {patient.contact}</span>}
+        {patient.address && <span style={{ fontSize: "9pt", color: "#444" }}>📍 {patient.address}</span>}
+        <span style={{ fontSize: "10pt" }}><strong>MR#:</strong> {patient.mrNumber}</span>
+        <span style={{ fontSize: "9pt", color: "#555" }}>{dateStr} — {timeStr}</span>
       </div>
 
-      {/* Clinical Sections */}
-      <div style={{ marginBottom: "4mm" }}>
-        {patient.complaint && (
-          <Section label="Complaint" value={patient.complaint} />
-        )}
-        {patient.clinicalExamination && (
-          <Section
-            label="Clinical Examination"
-            value={patient.clinicalExamination}
-          />
-        )}
-        {patient.diagnosis && (
-          <Section label="Diagnosis" value={patient.diagnosis} />
-        )}
-        {patient.investigation && (
-          <Section label="Investigation Advised" value={patient.investigation} />
-        )}
-      </div>
+      {/* ── Complaint (numbered) ── */}
+      {complaintLines.length > 0 && (
+        <div style={{ marginBottom: "4mm" }}>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10.5pt" }}>Complaint:</span>
+          <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
+            {complaintLines.length === 1 ? (
+              <span style={{ fontSize: "10pt" }}> {complaintLines[0]}</span>
+            ) : (
+              complaintLines.map((line, i) => (
+                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
+                  {i + 1}. {line}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
-      {/* Medication Table */}
+      {/* ── Clinical Examination ── */}
+      {(gpeText || systemicText) && (
+        <div style={{ marginBottom: "4mm" }}>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10.5pt" }}>Clinical Examination:</span>
+          {gpeText && (
+            <div style={{
+              background: "#f0f4fa", borderLeft: "3px solid #1a3a6b",
+              padding: "2mm 4mm", margin: "2mm 0", borderRadius: "0 2mm 2mm 0",
+            }}>
+              <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "9pt" }}>GPE: </span>
+              <span style={{ fontSize: "9.5pt" }}>{gpeText}</span>
+            </div>
+          )}
+          {systemicText && (
+            <div style={{
+              background: "#f5f0fa", borderLeft: "3px solid #534AB7",
+              padding: "2mm 4mm", margin: "2mm 0", borderRadius: "0 2mm 2mm 0",
+            }}>
+              <span style={{ fontWeight: "bold", color: "#534AB7", fontSize: "9pt" }}>Systemic: </span>
+              <span style={{ fontSize: "9.5pt" }}>{systemicText}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+
+
+
+      
+    {/* ── Diagnosis ── */}
+      {patient.diagnosis && (
+        <div style={{ marginBottom: "4mm" }}>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b" }}>Diagnosis:</span>
+          {patient.diagnosis.split(",").map((d, i) => d.trim()).filter(Boolean).length === 1 ? (
+            <span style={{ fontSize: "10pt" }}> {patient.diagnosis}</span>
+          ) : (
+            <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
+              {patient.diagnosis.split(",").map((d, i) => d.trim()).filter(Boolean).map((d, i) => (
+                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
+                  {i + 1}. {d}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Investigation ── */}
+      {patient.investigation && (
+        <div style={{ marginBottom: "4mm" }}>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b" }}>Investigation Advised:</span>
+          {patient.investigation.split(",").map((inv, i) => inv.trim()).filter(Boolean).length === 1 ? (
+            <span style={{ fontSize: "10pt" }}> {patient.investigation}</span>
+          ) : (
+            <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
+              {patient.investigation.split(",").map((inv) => inv.trim()).filter(Boolean).map((inv, i) => (
+                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
+                  {i + 1}. {inv}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Medication Table ── */}
       {patient.medications && patient.medications.length > 0 && (
         <div style={{ marginTop: "5mm" }}>
-          <p
-            style={{
-              fontWeight: "bold",
-              fontSize: "11pt",
-              marginBottom: "2mm",
-              borderBottom: "1px solid #1a3a6b",
-              paddingBottom: "1mm",
-              color: "#1a3a6b",
-            }}
-          >
+          <p style={{ fontWeight: "bold", fontSize: "11pt", marginBottom: "2mm", borderBottom: "1px solid #1a3a6b", paddingBottom: "1mm", color: "#1a3a6b" }}>
             Medication
           </p>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "10pt",
-            }}
-          >
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10pt" }}>
             <thead>
               <tr style={{ background: "#1a3a6b", color: "white" }}>
-                <th style={thStyle}>Sr.</th>
-                <th style={thStyle}>Drug</th>
-                <th style={thStyle}>Frequency</th>
-                <th style={thStyle}>Dosage</th>
-                <th style={thStyle}>Duration</th>
-                <th style={thStyle}>Instruction</th>
+                {["Sr.", "Drug", "Frequency", "Dosage", "Duration", "Instruction"].map((h) => (
+                  <th key={h} style={{ padding: "2mm 3mm", textAlign: "left", fontWeight: "bold", fontSize: "9.5pt", border: "1px solid #1a3a6b" }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {patient.medications.map((med, i) => (
-                <tr
-                  key={i}
-                  style={{ background: i % 2 === 0 ? "#f9fbff" : "white" }}
-                >
-                  <td style={tdStyle}>{i + 1}</td>
-                  <td style={{ ...tdStyle, fontWeight: "600" }}>{med.drug}</td>
-                  <td style={tdStyle}>{med.frequency}</td>
-                  <td style={tdStyle}>{med.dosage}</td>
-                  <td style={tdStyle}>{med.duration}</td>
-                  <td style={tdStyle}>{med.instruction}</td>
+                <tr key={i} style={{ background: i % 2 === 0 ? "#f9fbff" : "white" }}>
+                  <td style={tdS}>{i + 1}</td>
+                  <td style={{ ...tdS, fontWeight: "600" }}>{med.drug}</td>
+                  <td style={tdS}><BiCell en={med.frequency} ur={med.frequencyUrdu} /></td>
+                  <td style={tdS}><BiCell en={med.dosage} ur={med.dosageUrdu} /></td>
+                  <td style={tdS}><BiCell en={med.duration} ur={med.durationUrdu} /></td>
+                  <td style={tdS}><BiCell en={med.instruction} ur={med.instructionUrdu} /></td>
                 </tr>
               ))}
             </tbody>
@@ -210,22 +248,21 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         </div>
       )}
 
-      {/* Footer */}
-      <div
-        style={{
-          marginTop: "12mm",
-          borderTop: "1px solid #ccc",
-          paddingTop: "4mm",
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: "9pt",
-          color: "#777",
-        }}
-      >
-        <span>Siddique Medical Complex</span>
+      {/* ── Follow-up ── */}
+      {followUpDisplay && (
+        <div style={{ marginTop: "6mm", display: "inline-flex", alignItems: "center", gap: "6mm", border: "1px solid #1a3a6b", borderRadius: "3mm", padding: "2.5mm 5mm" }}>
+          <span style={{ fontSize: "10pt", color: "#1a3a6b" }}>📅</span>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt" }}>Follow-up visit:</span>
+          <span style={{ fontSize: "10pt" }}>{followUpDisplay}</span>
+        </div>
+      )}
+
+      {/* ── Footer ── */}
+      <div style={{ marginTop: "12mm", borderTop: "1px solid #ccc", paddingTop: "4mm", display: "flex", justifyContent: "space-between", fontSize: "9pt", color: "#777" }}>
+        <span>Prof. Dr. Zahid Mahmood</span>
         <span>Follow-up as advised by doctor</span>
         <div style={{ textAlign: "right" }}>
-          <p style={{ margin: 0, borderTop: "1px solid #000", paddingTop: "2mm", marginTop: "8mm", width: "40mm", fontSize: "8pt" }}>
+          <p style={{ margin: 0, borderTop: "1px solid #000", paddingTop: "2mm", marginTop: "16mm", width: "40mm", fontSize: "8pt" }}>
             Doctor&apos;s Signature
           </p>
         </div>
@@ -234,24 +271,20 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
   );
 }
 
-function Section({ label, value }: { label: string; value: string }) {
+function BiCell({ en, ur }: { en: string; ur?: string }) {
   return (
-    <div style={{ marginBottom: "3mm" }}>
-      <span style={{ fontWeight: "bold", color: "#1a3a6b" }}>{label}: </span>
-      <span>{value}</span>
+    <div>
+      <div>{en}</div>
+      {ur && ur.trim() && (
+        <div style={{ fontFamily: "'Noto Nastaliq Urdu', serif", fontSize: "9pt", color: "#333", marginTop: "1mm", direction: "rtl", textAlign: "right" }}>
+          {ur}
+        </div>
+      )}
     </div>
   );
 }
 
-const thStyle: React.CSSProperties = {
-  padding: "2mm 3mm",
-  textAlign: "left",
-  fontWeight: "bold",
-  fontSize: "9.5pt",
-  border: "1px solid #1a3a6b",
-};
-
-const tdStyle: React.CSSProperties = {
+const tdS: React.CSSProperties = {
   padding: "2mm 3mm",
   border: "1px solid #dde4f0",
   verticalAlign: "top",

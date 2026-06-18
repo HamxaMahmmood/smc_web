@@ -9,6 +9,19 @@ import SearchableSelect from "@/components/SearchableSelect";
 // DATA BANKS
 // ─────────────────────────────────────────────
 
+const CLINICS = [
+  {
+    id: "islamabad",
+    name: "Islamabad Specialist Clinic, Satyana Road",
+    detail: "Timings: 7:30 PM – 9:30 PM",
+  },
+  {
+    id: "siddique",
+    name: "Siddique Executive Clinic, Gulistan Colony",
+    detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM",
+  },
+];
+
 const COMPLAINTS = [
   "Fever","High-grade fever","Low-grade fever","Fever with chills","Fever with rigors",
   "Cough","Dry cough","Productive cough","Whooping cough","Croup cough (barking)",
@@ -89,7 +102,8 @@ const INVESTIGATIONS = [
   "Stool Routine Examination","Stool Culture","Stool for Ova & Parasites","Stool for Occult Blood",
   "24-hour Urine Protein",
   "Chest X-Ray (CXR) PA view","Abdominal X-Ray (Erect & Supine)",
-  "X-Ray (Left Hand & Wrist) for Bone Age","Ultrasound Chest", "Pleural fluid examination","Ultrasound KUB",
+  "X-Ray (Left Hand & Wrist) for Bone Age","Ultrasound Abdomen","Ultrasound Chest",
+  "Pleural fluid examination","Ultrasound KUB",
   "Echocardiography (Echo)","CT Scan Head","MRI Brain",
   "DMSA Scan (Renal)","MCUG (Micturating Cystourethrogram)",
   "Spirometry","Peak Flow Meter","Skin Prick Test (Allergy)",
@@ -100,11 +114,7 @@ const INVESTIGATIONS = [
   "Serum Immunoglobulins (IgG, IgA, IgM)","Antinuclear Antibody (ANA)",
 ];
 
-interface MedEntry {
-  generic: string;
-  brands: string[];
-  packages: string[];
-}
+interface MedEntry { generic: string; brands: string[]; packages: string[]; }
 
 const MEDICINES: MedEntry[] = [
   { generic: "Amoxicillin", brands: ["Amoxil", "Wymox", "Ospamox", "Flemoxin"], packages: ["125mg/5ml Syrup (60ml)", "250mg/5ml Syrup (60ml)", "250mg Capsule", "500mg Capsule"] },
@@ -149,7 +159,7 @@ const MEDICINES: MedEntry[] = [
   { generic: "Mebendazole", brands: ["Vermox", "Sqworm", "Meben"], packages: ["100mg/5ml Syrup (30ml)", "100mg Tablet", "500mg Tablet"] },
   { generic: "Pyrantel Pamoate", brands: ["Combantrin", "Antiminth"], packages: ["50mg/ml Syrup (15ml)", "250mg Tablet"] },
   { generic: "Vitamin D3", brands: ["D-Vit", "D-Sol", "Vitafol-D"], packages: ["400 IU Drops", "800 IU Drops", "1000 IU Tablet", "50,000 IU Capsule"] },
-  { generic: "Iron (Ferrous Sulfate)", brands: ["Ferodan", "Ferose", "Fer-In-Sol","Iberet"], packages: ["15mg/ml Drops (50ml)", "25mg/5ml Syrup (100ml)", "325mg Tablet"] },
+  { generic: "Iron (Ferrous Sulfate)", brands: ["Ferodan", "Ferose", "Fer-In-Sol", "Iberet"], packages: ["15mg/ml Drops (50ml)", "25mg/5ml Syrup (100ml)", "325mg Tablet"] },
   { generic: "Calcium + Vitamin D", brands: ["CAC-1000", "Calcivit-D", "Sandocal"], packages: ["Sachet", "Chewable Tablet", "500mg+200IU Tablet"] },
   { generic: "Multivitamin Drops", brands: ["Vidaylin", "Polyviflor", "Abidec", "Vitago"], packages: ["Oral Drops (15ml)", "Oral Drops (30ml)"] },
   { generic: "Folic Acid", brands: ["Folvite", "Folic-5"], packages: ["5mg Tablet", "15mg/5ml Syrup (60ml)"] },
@@ -161,53 +171,113 @@ const MEDICINES: MedEntry[] = [
   { generic: "Artemether + Lumefantrine", brands: ["Coartem", "Riamet"], packages: ["20mg/120mg Tablet"] },
 ];
 
-const FREQUENCIES = [
-  "Once a day (OD)","Twice a day (BD)","Three times a day (TDS)","Four times a day (QDS)",
-  "Every 6 hours","Every 8 hours","Every 12 hours","Every 4-6 hours (PRN)",
-  "At night (HS)","In the morning","Alternate days","Weekly",
+// ── Frequency ──
+const FREQUENCIES: { en: string; ur: string }[] = [
+  { en: "Once a day (OD)",        ur: "دن میں ایک بار" },
+  { en: "Twice a day (BD)",       ur: "دن میں دو بار" },
+  { en: "Three times a day (TDS)",ur: "دن میں تین بار" },
+  { en: "Four times a day (QDS)", ur: "دن میں چار بار" },
+  { en: "Every 6 hours",          ur: "ہر ۶ گھنٹے بعد" },
+  { en: "Every 8 hours",          ur: "ہر ۸ گھنٹے بعد" },
+  { en: "Every 12 hours",         ur: "ہر ۱۲ گھنٹے بعد" },
+  { en: "Every 4-6 hours (PRN)",  ur: "ضرورت پر ہر ۴ تا ۶ گھنٹے بعد" },
+  { en: "At night (HS)",          ur: "رات سونے سے پہلے" },
+  { en: "In the morning",         ur: "صبح کے وقت" },
+  { en: "Alternate days",         ur: "ایک دن چھوڑ کر" },
+  { en: "Weekly",                 ur: "ہفتے میں ایک بار" },
 ];
 
-const DOSAGES = [
-  "1 ml","2 ml","2.5 ml","3 ml","4 ml","5 ml","7.5 ml","10 ml","15 ml",
-  "Half tablet (½)","One tablet (1)","Two tablets (2)",
-  "One capsule","Two capsules","1 puff","2 puffs","One sachet","As directed",
+// ── Dosage ──
+const DOSAGES: { en: string; ur: string }[] = [
+  { en: "1 ml",            ur: "۱ ملی لیٹر" },
+  { en: "2 ml",            ur: "۲ ملی لیٹر" },
+  { en: "2.5 ml",          ur: "۲.۵ ملی لیٹر" },
+  { en: "3 ml",            ur: "۳ ملی لیٹر" },
+  { en: "4 ml",            ur: "۴ ملی لیٹر" },
+  { en: "5 ml",            ur: "۵ ملی لیٹر" },
+  { en: "7.5 ml",          ur: "۷.۵ ملی لیٹر" },
+  { en: "10 ml",           ur: "۱۰ ملی لیٹر" },
+  { en: "15 ml",           ur: "۱۵ ملی لیٹر" },
+  { en: "Half tablet (½)", ur: "آدھی گولی" },
+  { en: "One tablet (1)",  ur: "ایک گولی" },
+  { en: "Two tablets (2)", ur: "دو گولیاں" },
+  { en: "One capsule",     ur: "ایک کیپسول" },
+  { en: "Two capsules",    ur: "دو کیپسول" },
+  { en: "1 puff",          ur: "ایک پف" },
+  { en: "2 puffs",         ur: "دو پف" },
+  { en: "One sachet",      ur: "ایک ساشے" },
+  { en: "As directed",     ur: "ڈاکٹر کی ہدایت کے مطابق" },
 ];
 
-const DURATIONS_MED = [
-  "3 days","5 days","7 days","10 days","14 days",
-  "1 month","2 months","3 months","Ongoing / chronic","As needed (PRN)","Single dose",
+// ── Duration ──
+const DURATIONS_MED: { en: string; ur: string }[] = [
+  { en: "3 days",            ur: "۳ دن" },
+  { en: "5 days",            ur: "۵ دن" },
+  { en: "7 days",            ur: "۷ دن" },
+  { en: "10 days",           ur: "۱۰ دن" },
+  { en: "14 days",           ur: "۱۴ دن" },
+  { en: "1 month",           ur: "ایک مہینہ" },
+  { en: "2 months",          ur: "دو مہینے" },
+  { en: "3 months",          ur: "تین مہینے" },
+  { en: "Ongoing / chronic", ur: "مسلسل / دائمی" },
+  { en: "As needed (PRN)",   ur: "ضرورت پڑنے پر" },
+  { en: "Single dose",       ur: "صرف ایک بار" },
 ];
 
-const INSTRUCTIONS = [
-  "Before meal","After meal","With meal","With water","With milk",
-  "At bedtime","In the morning","Empty stomach",
-  "Dissolve in water","Chew before swallowing","Swallow whole",
-  "Shake well before use","Keep refrigerated",
+// ── Instruction ──
+const INSTRUCTIONS: { en: string; ur: string }[] = [
+  { en: "Before meal",           ur: "کھانے سے پہلے" },
+  { en: "After meal",            ur: "کھانے کے بعد" },
+  { en: "With meal",             ur: "کھانے کے ساتھ" },
+  { en: "With water",            ur: "پانی کے ساتھ" },
+  { en: "With milk",             ur: "دودھ کے ساتھ" },
+  { en: "At bedtime",            ur: "سونے سے پہلے" },
+  { en: "In the morning",        ur: "صبح کے وقت" },
+  { en: "Empty stomach",         ur: "خالی پیٹ" },
+  { en: "Dissolve in water",     ur: "پانی میں گھول کر پئیں" },
+  { en: "Chew before swallowing",ur: "چبا کر نگلیں" },
+  { en: "Swallow whole",         ur: "پوری نگل لیں" },
+  { en: "Shake well before use", ur: "استعمال سے پہلے ہلائیں" },
+  { en: "Keep refrigerated",     ur: "فریج میں رکھیں" },
 ];
+
+
+
+
+function urduFor(
+  list: { en: string; ur: string }[],
+  enVal: string
+): string {
+  return list.find((x) => x.en === enVal)?.ur ?? "";
+}
+
+
 
 // ─────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────
 
 interface ComplaintEntry { symptom: string; duration: string; }
-
 interface Medication {
   generic: string; brand: string; package: string;
   frequency: string; dosage: string; duration: string; instruction: string;
   frequencyUrdu: string; dosageUrdu: string; durationUrdu: string; instructionUrdu: string;
 }
-
 interface PatientForm {
+  clinic: string;
   name: string;
   gender: "Male" | "Female" | "Other";
   ageValue: string;
   ageUnit: "Years" | "Months";
+  contact: string;
+  address: string;
   complaints: ComplaintEntry[];
   gpe: string;
   systemic: string;
   diagnosis: string[];
   investigation: string[];
   medications: Medication[];
+  followUpDate: string;
 }
 
 const emptyComplaint = (): ComplaintEntry => ({ symptom: "", duration: "" });
@@ -216,13 +286,15 @@ const emptyMed = (): Medication => ({
   frequency: "", dosage: "", duration: "", instruction: "",
   frequencyUrdu: "", dosageUrdu: "", durationUrdu: "", instructionUrdu: "",
 });
-
 const initialForm: PatientForm = {
+  clinic: "islamabad",
   name: "", gender: "Male", ageValue: "", ageUnit: "Years",
+  contact: "", address: "",
   complaints: [emptyComplaint()],
   gpe: GPE_DEFAULT, systemic: SYSTEMIC_DEFAULT,
   diagnosis: [], investigation: [],
   medications: [emptyMed()],
+  followUpDate: "",
 };
 
 type Step = "form" | "preview";
@@ -278,12 +350,18 @@ export default function NewPatientPage() {
   const buildPrintPatient = (mrNumber = "PREVIEW", visitDate: Date | string = new Date()) => ({
     name: form.name,
     gender: form.gender,
-    age: form.ageUnit === "Months" ? parseInt(form.ageValue) / 12 : parseInt(form.ageValue),
+    age: form.ageUnit === "Months"
+      ? (`${form.ageValue} months` as unknown as number)
+      : parseInt(form.ageValue),
     mrNumber,
+    clinic: form.clinic,
+    contact: form.contact,
+    address: form.address,
     complaint: complaintsText,
     clinicalExamination: clinicalExamText,
     diagnosis: form.diagnosis.join(", "),
     investigation: form.investigation.join(", "),
+    followUpDate: form.followUpDate,
     medications: form.medications.map((m) => ({
       drug: [m.brand, m.generic && `(${m.generic})`, m.package && `— ${m.package}`].filter(Boolean).join(" "),
       frequency: m.frequency, dosage: m.dosage, duration: m.duration, instruction: m.instruction,
@@ -306,7 +384,7 @@ export default function NewPatientPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name, gender: form.gender,
-          age: form.ageUnit === "Months" ? Math.ceil(parseInt(form.ageValue) / 12) : parseInt(form.ageValue),
+          age: form.ageUnit ,
           complaint: complaintsText, clinicalExamination: clinicalExamText,
           diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
           medications: buildPrintPatient().medications,
@@ -323,6 +401,13 @@ export default function NewPatientPage() {
 
   const handleNew = () => { setForm(initialForm); setSavedPatient(null); setStep("form"); setError(""); };
 
+  // ── Follow-up display ──
+  const followUpDisplay = form.followUpDate
+    ? new Date(form.followUpDate + "T00:00:00").toLocaleDateString("en-GB", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric",
+      })
+    : "";
+
   // ── PREVIEW ──
   if (step === "preview") {
     const pt = savedPatient
@@ -333,7 +418,7 @@ export default function NewPatientPage() {
       <div style={{ minHeight: "100vh", background: "#f0f4fa" }}>
         <div className="no-print" style={{ background: "#1a3a6b", padding: "12px 24px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <button onClick={() => setStep("form")} style={btn("ghost")}>← Back</button>
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>Siddique Medical Complex</span>
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>Dr. Zahid Mahmood</span>
           <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
             {!savedPatient
               ? <button onClick={handleSaveAndPrint} disabled={saving} style={btn("white")}>{saving ? "Saving…" : "💾 Save & Print"}</button>
@@ -357,15 +442,46 @@ export default function NewPatientPage() {
     <div style={{ minHeight: "100vh", background: "#f0f4fa" }}>
       <div style={{ background: "#1a3a6b", padding: "14px 24px", display: "flex", alignItems: "center", gap: "16px" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none", fontSize: "14px" }}>← Home</Link>
-        <h1 style={{ color: "white", margin: 0, fontSize: "18px", fontWeight: "700" }}>New Patient Registration</h1>
+        <h1 style={{ color: "white", margin: 0, fontSize: "18px", fontWeight: "700" }}>New Patient</h1>
       </div>
 
       <div style={{ maxWidth: "960px", margin: "0 auto", padding: "32px 16px" }}>
         {error && <div style={{ background: "#fee2e2", color: "#dc2626", padding: "12px 16px", borderRadius: "8px", marginBottom: "16px", fontSize: "14px" }}>{error}</div>}
 
-        {/* Patient Info */}
+        {/* ── Clinic selector ── */}
+        <Card title="🏥 Clinic / Establishment">
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {CLINICS.map((c) => (
+              <label
+                key={c.id}
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: "12px",
+                  padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
+                  border: `1.5px solid ${form.clinic === c.id ? "#1a3a6b" : "#c8d8f0"}`,
+                  background: form.clinic === c.id ? "#e8f0fb" : "white",
+                  transition: "all 0.15s",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="clinic"
+                  value={c.id}
+                  checked={form.clinic === c.id}
+                  onChange={() => setForm((f) => ({ ...f, clinic: c.id }))}
+                  style={{ marginTop: "2px" }}
+                />
+                <div>
+                  <div style={{ fontWeight: "600", fontSize: "14px", color: "#1a1a2e" }}>{c.name}</div>
+                  <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>{c.detail}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </Card>
+
+        {/* ── Patient Info ── */}
         <Card title="👤 Patient Information">
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "16px", alignItems: "end" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "14px", marginBottom: "14px" }}>
             <div>
               <Label>Full Name *</Label>
               <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Ahmed Khan" style={inputSt} />
@@ -373,8 +489,8 @@ export default function NewPatientPage() {
             <div>
               <Label>Age *</Label>
               <div style={{ display: "flex", gap: "6px" }}>
-                <input type="number" min="0" value={form.ageValue} onChange={(e) => setForm((f) => ({ ...f, ageValue: e.target.value }))} placeholder="e.g. 3" style={{ ...inputSt, width: "60%" }} />
-                <select value={form.ageUnit} onChange={(e) => setForm((f) => ({ ...f, ageUnit: e.target.value as "Years" | "Months" }))} style={{ ...inputSt, width: "40%", padding: "9px 6px" }}>
+                <input type="number" min="0" value={form.ageValue} onChange={(e) => setForm((f) => ({ ...f, ageValue: e.target.value }))} placeholder="e.g. 3" style={{ ...inputSt, width: "55%" }} />
+                <select value={form.ageUnit} onChange={(e) => setForm((f) => ({ ...f, ageUnit: e.target.value as "Years" | "Months" }))} style={{ ...inputSt, width: "45%", padding: "9px 6px" }}>
                   <option>Years</option><option>Months</option>
                 </select>
               </div>
@@ -386,9 +502,19 @@ export default function NewPatientPage() {
               </select>
             </div>
           </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "14px" }}>
+            <div>
+              <Label>Contact Number</Label>
+              <input value={form.contact} onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))} placeholder="e.g. 0301-1234567" style={inputSt} />
+            </div>
+            <div>
+              <Label>Address</Label>
+              <input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="e.g. House 5, Street 3, F-7/2 Islamabad" style={inputSt} />
+            </div>
+          </div>
         </Card>
 
-        {/* Complaints */}
+        {/* ── Complaints ── */}
         <Card title="🤒 Complaints">
           {form.complaints.map((c, i) => (
             <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: "10px", alignItems: "end", marginBottom: "10px" }}>
@@ -411,30 +537,40 @@ export default function NewPatientPage() {
           <button onClick={addComplaint} style={addRowBtn}>+ Add Symptom</button>
         </Card>
 
-        {/* Clinical Examination */}
+        {/* ── Clinical Examination ── */}
         <Card title="🩺 Clinical Examination">
           <div style={{ marginBottom: "16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <Label>General Physical Examination (GPE)</Label>
+              <span style={{ display: "inline-block", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", background: "#e8f0fb", color: "#1a3a6b" }}>GPE</span>
               <button onClick={() => setForm((f) => ({ ...f, gpe: GPE_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
             </div>
-            <textarea value={form.gpe} onChange={(e) => setForm((f) => ({ ...f, gpe: e.target.value }))} rows={4} style={{ ...inputSt, resize: "vertical", fontFamily: "inherit", lineHeight: "1.6" }} />
+            <textarea
+              value={form.gpe}
+              onChange={(e) => setForm((f) => ({ ...f, gpe: e.target.value }))}
+              rows={4}
+              style={{ ...inputSt, resize: "vertical", fontFamily: "inherit", lineHeight: "1.6", borderLeft: "3px solid #1a3a6b", borderRadius: "0 7px 7px 0", background: "#f0f4fa" }}
+            />
           </div>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <Label>Systemic Examination</Label>
+              <span style={{ display: "inline-block", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", background: "#f5f0fa", color: "#534AB7" }}>Systemic</span>
               <button onClick={() => setForm((f) => ({ ...f, systemic: SYSTEMIC_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
             </div>
-            <textarea value={form.systemic} onChange={(e) => setForm((f) => ({ ...f, systemic: e.target.value }))} rows={4} style={{ ...inputSt, resize: "vertical", fontFamily: "inherit", lineHeight: "1.6" }} />
+            <textarea
+              value={form.systemic}
+              onChange={(e) => setForm((f) => ({ ...f, systemic: e.target.value }))}
+              rows={4}
+              style={{ ...inputSt, resize: "vertical", fontFamily: "inherit", lineHeight: "1.6", borderLeft: "3px solid #534AB7", borderRadius: "0 7px 7px 0", background: "#f5f0fa" }}
+            />
           </div>
         </Card>
 
-        {/* Diagnosis */}
+        {/* ── Diagnosis ── */}
         <Card title="🔬 Diagnosis">
           <SearchableSelect
             options={DIAGNOSES.filter((d) => !form.diagnosis.includes(d))}
             value=""
-            onChange={(v) => { if (v && DIAGNOSES.includes(v) && !form.diagnosis.includes(v)) { toggleItem("diagnosis", v); } }}
+            onChange={(v) => { if (v && DIAGNOSES.includes(v) && !form.diagnosis.includes(v)) toggleItem("diagnosis", v); }}
             placeholder="Search and select diagnosis..."
           />
           {form.diagnosis.length > 0 && (
@@ -448,12 +584,12 @@ export default function NewPatientPage() {
           )}
         </Card>
 
-        {/* Investigation */}
+        {/* ── Investigation ── */}
         <Card title="🧪 Investigation / Tests">
           <SearchableSelect
             options={INVESTIGATIONS.filter((inv) => !form.investigation.includes(inv))}
             value=""
-            onChange={(v) => { if (v && INVESTIGATIONS.includes(v) && !form.investigation.includes(v)) { toggleItem("investigation", v); } }}
+            onChange={(v) => { if (v && INVESTIGATIONS.includes(v) && !form.investigation.includes(v)) toggleItem("investigation", v); }}
             placeholder="Search and select investigation..."
           />
           {form.investigation.length > 0 && (
@@ -467,45 +603,73 @@ export default function NewPatientPage() {
           )}
         </Card>
 
-        {/* Medications */}
+        {/* ── Medications ── */}
         <Card title="💊 Medications">
           {form.medications.map((med, i) => {
             const entry = MEDICINES.find((m) => m.generic === med.generic);
-            const brandOpts = entry?.brands || [];
-            const packageOpts = entry?.packages || [];
             return (
               <div key={i} style={{ border: "1px solid #c8d8f0", borderRadius: "10px", padding: "16px", marginBottom: "14px", background: "#f8faff" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
                   <span style={{ fontWeight: "700", color: "#1a3a6b", fontSize: "14px" }}>Medicine {i + 1}</span>
                   {form.medications.length > 1 && <button onClick={() => removeMed(i)} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: "13px", fontWeight: "600" }}>✕ Remove</button>}
                 </div>
-
-                {/* Generic / Brand / Package */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                  <div>
-                    <Label>Generic Name</Label>
-                    <SearchableSelect options={MEDICINES.map((m) => m.generic)} value={med.generic} onChange={(v) => setMedGeneric(i, v)} placeholder="e.g. Amoxicillin" />
-                  </div>
-                  <div>
-                    <Label>Brand Name (Pakistan)</Label>
-                    <SearchableSelect options={brandOpts} value={med.brand} onChange={(v) => setMed(i, "brand", v)} placeholder="e.g. Amoxil" />
-                  </div>
-                  <div>
-                    <Label>Package / Strength</Label>
-                    <SearchableSelect options={packageOpts} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="e.g. 125mg/5ml Syrup" />
-                  </div>
+                  <div><Label>Generic Name</Label><SearchableSelect options={MEDICINES.map((m) => m.generic)} value={med.generic} onChange={(v) => setMedGeneric(i, v)} placeholder="e.g. Amoxicillin" /></div>
+                  <div><Label>Brand Name (Pakistan)</Label><SearchableSelect options={entry?.brands || []} value={med.brand} onChange={(v) => setMed(i, "brand", v)} placeholder="e.g. Amoxil" /></div>
+                  <div><Label>Package / Strength</Label><SearchableSelect options={entry?.packages || []} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="e.g. 125mg/5ml" /></div>
                 </div>
-
-                {/* English */}
-                <div style={{ marginBottom: "6px" }}><span style={langBadge("en")}>English</span></div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
-                  <div><Label>Frequency</Label><SearchableSelect options={FREQUENCIES} value={med.frequency} onChange={(v) => setMed(i, "frequency", v)} placeholder="e.g. Twice a day" /></div>
-                  <div><Label>Dosage</Label><SearchableSelect options={DOSAGES} value={med.dosage} onChange={(v) => setMed(i, "dosage", v)} placeholder="e.g. 5 ml" /></div>
-                  <div><Label>Duration</Label><SearchableSelect options={DURATIONS_MED} value={med.duration} onChange={(v) => setMed(i, "duration", v)} placeholder="e.g. 7 days" /></div>
-                  <div><Label>Instruction</Label><SearchableSelect options={INSTRUCTIONS} value={med.instruction} onChange={(v) => setMed(i, "instruction", v)} placeholder="e.g. After meal" /></div>
-                </div>
-
-                {/* Urdu */}
+              {/* English */}
+<div style={{ marginBottom: "6px" }}><span style={langBadge("en")}>English</span></div>
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
+  <div>
+    <Label>Frequency</Label>
+    <SearchableSelect
+      options={FREQUENCIES.map((f) => f.en)}
+      value={med.frequency}
+      onChange={(v) => {
+        setMed(i, "frequency", v);
+        setMed(i, "frequencyUrdu", urduFor(FREQUENCIES, v));
+      }}
+      placeholder="Twice a day"
+    />
+  </div>
+  <div>
+    <Label>Dosage</Label>
+    <SearchableSelect
+      options={DOSAGES.map((d) => d.en)}
+      value={med.dosage}
+      onChange={(v) => {
+        setMed(i, "dosage", v);
+        setMed(i, "dosageUrdu", urduFor(DOSAGES, v));
+      }}
+      placeholder="5 ml"
+    />
+  </div>
+  <div>
+    <Label>Duration</Label>
+    <SearchableSelect
+      options={DURATIONS_MED.map((d) => d.en)}
+      value={med.duration}
+      onChange={(v) => {
+        setMed(i, "duration", v);
+        setMed(i, "durationUrdu", urduFor(DURATIONS_MED, v));
+      }}
+      placeholder="7 days"
+    />
+  </div>
+  <div>
+    <Label>Instruction</Label>
+    <SearchableSelect
+      options={INSTRUCTIONS.map((ins) => ins.en)}
+      value={med.instruction}
+      onChange={(v) => {
+        setMed(i, "instruction", v);
+        setMed(i, "instructionUrdu", urduFor(INSTRUCTIONS, v));
+      }}
+      placeholder="After meal"
+    />
+  </div>
+</div>
                 <div style={{ marginBottom: "6px" }}><span style={langBadge("ur")}>اردو</span></div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", background: "#f0f7ff", borderRadius: "8px", padding: "10px" }}>
                   <div><Label>تعداد</Label><input value={med.frequencyUrdu} onChange={(e) => setMed(i, "frequencyUrdu", e.target.value)} placeholder="دن میں دو بار" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
@@ -517,6 +681,28 @@ export default function NewPatientPage() {
             );
           })}
           <button onClick={addMed} style={addRowBtn}>+ Add Medicine</button>
+        </Card>
+
+        {/* ── Follow-up ── */}
+        <Card title="📅 Follow-up Visit">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "center" }}>
+            <div>
+              <Label>Next Visit Date</Label>
+              <input
+                type="date"
+                value={form.followUpDate}
+                onChange={(e) => setForm((f) => ({ ...f, followUpDate: e.target.value }))}
+                min={new Date().toISOString().split("T")[0]}
+                style={inputSt}
+              />
+            </div>
+            {followUpDisplay && (
+              <div style={{ padding: "10px 14px", border: "1.5px solid #1a3a6b", borderRadius: "8px", background: "#e8f0fb" }}>
+                <div style={{ fontSize: "11px", color: "#1a3a6b", fontWeight: "700", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Scheduled</div>
+                <div style={{ fontSize: "14px", color: "#1a3a6b", fontWeight: "600" }}>{followUpDisplay}</div>
+              </div>
+            )}
+          </div>
         </Card>
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
@@ -540,7 +726,6 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
     </div>
   );
 }
-
 function Label({ children }: { children: React.ReactNode }) {
   return <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#374151", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{children}</label>;
 }
