@@ -105,7 +105,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "9pt", color: "#444", margin: 0 }}>
-              PMDC Reg. No: ___________
+              PMDC Reg. No: 28355-P
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
           <Section label="Diagnosis" value={patient.diagnosis} />
         )}
         {patient.investigation && (
-          <Section label="Investigation" value={patient.investigation} />
+          <Section label="Investigation Advised" value={patient.investigation} />
         )}
       </div>
 

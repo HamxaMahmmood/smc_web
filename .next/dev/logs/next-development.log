@@ -1,3 +1,13 @@
-{"timestamp":"00:00:00.433","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:04.753","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
-{"timestamp":"00:11:52.542","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:00:00.487","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:03.246","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:00:03.462","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:03:42.437","source":"Server","level":"LOG","message":"✓ Compiled in 149ms"}
+{"timestamp":"00:04:25.343","source":"Server","level":"LOG","message":"✓ Compiled in 18ms"}
+{"timestamp":"00:09:56.609","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:11:22.505","source":"Server","level":"LOG","message":"✓ Compiled in 17ms"}
+{"timestamp":"00:12:16.552","source":"Server","level":"LOG","message":"✓ Compiled in 15ms"}
+{"timestamp":"00:22:15.936","source":"Server","level":"LOG","message":"✓ Compiled in 11ms"}
+{"timestamp":"00:27:22.638","source":"Server","level":"LOG","message":"✓ Compiled in 11ms"}
+{"timestamp":"00:29:14.165","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:34:28.740","source":"Server","level":"LOG","message":"✓ Compiled in 30ms"}
+{"timestamp":"00:35:41.112","source":"Server","level":"LOG","message":"✓ Compiled in 20ms"}

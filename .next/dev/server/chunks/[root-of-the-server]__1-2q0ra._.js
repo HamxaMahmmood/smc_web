@@ -179,20 +179,63 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Patient$2e$ts__$5b
 ;
 ;
 ;
-// Auto-generate MR number
 async function generateMRNumber() {
-    const count = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Patient$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments();
-    const num = (count + 1).toString().padStart(8, "0");
-    return num;
+    // Find the highest existing MR number and increment
+    // This is safer than countDocuments under concurrent requests
+    const latest = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Patient$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}, {
+        mrNumber: 1
+    }).sort({
+        createdAt: -1
+    }).lean();
+    if (!latest || !latest.mrNumber) {
+        return "00000001";
+    }
+    const lastNum = parseInt(latest.mrNumber, 10);
+    if (isNaN(lastNum)) return "00000001";
+    return String(lastNum + 1).padStart(8, "0");
 }
 async function POST(req) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mongodb$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
         const body = await req.json();
+        // Validate required fields
+        if (!body.name || body.name.trim() === "") {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Patient name is required"
+            }, {
+                status: 400
+            });
+        }
+        if (body.age === undefined || body.age === null || isNaN(Number(body.age))) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Valid age is required"
+            }, {
+                status: 400
+            });
+        }
         const mrNumber = await generateMRNumber();
         const patient = new __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$Patient$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"]({
-            ...body,
+            name: body.name.trim(),
+            gender: body.gender || "Male",
+            age: Number(body.age),
             mrNumber,
+            complaint: body.complaint || "",
+            clinicalExamination: body.clinicalExamination || "",
+            diagnosis: body.diagnosis || "",
+            investigation: body.investigation || "",
+            medications: (body.medications || []).map((m)=>({
+                    drug: m.drug || "",
+                    frequency: m.frequency || "",
+                    dosage: m.dosage || "",
+                    duration: m.duration || "",
+                    instruction: m.instruction || "",
+                    frequencyUrdu: m.frequencyUrdu || "",
+                    dosageUrdu: m.dosageUrdu || "",
+                    durationUrdu: m.durationUrdu || "",
+                    instructionUrdu: m.instructionUrdu || ""
+                })),
             visitDate: new Date()
         });
         await patient.save();
@@ -204,6 +247,15 @@ async function POST(req) {
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
+        // Duplicate MR number — retry once
+        if (message.includes("duplicate key") || message.includes("E11000")) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "MR number conflict, please try again"
+            }, {
+                status: 409
+            });
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: false,
             error: message
