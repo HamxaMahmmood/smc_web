@@ -572,6 +572,7 @@ export default function NewPatientPage() {
             value=""
             onChange={(v) => { if (v && DIAGNOSES.includes(v) && !form.diagnosis.includes(v)) toggleItem("diagnosis", v); }}
             placeholder="Search and select diagnosis..."
+            clearAfterSelect
           />
           {form.diagnosis.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
@@ -591,6 +592,7 @@ export default function NewPatientPage() {
             value=""
             onChange={(v) => { if (v && INVESTIGATIONS.includes(v) && !form.investigation.includes(v)) toggleItem("investigation", v); }}
             placeholder="Search and select investigation..."
+            clearAfterSelect
           />
           {form.investigation.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>

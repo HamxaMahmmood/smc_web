@@ -8,6 +8,7 @@ interface SearchableSelectProps {
   placeholder?: string;
   allowCustom?: boolean;
   dir?: "ltr" | "rtl";
+  clearAfterSelect?: boolean; // ← add this
 }
 
 export default function SearchableSelect({
@@ -17,6 +18,7 @@ export default function SearchableSelect({
   placeholder = "Search or type...",
   allowCustom = true,
   dir = "ltr",
+  clearAfterSelect = false, // ← add this
 }: SearchableSelectProps) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
@@ -46,11 +48,11 @@ export default function SearchableSelect({
     return () => document.removeEventListener("mousedown", handler);
   }, [query, value, options, allowCustom, onChange]);
 
-  const select = (opt: string) => {
-    setQuery(opt);
-    onChange(opt);
-    setOpen(false);
-  };
+const select = (opt: string) => {
+  onChange(opt);
+  setQuery(clearAfterSelect ? "" : opt);
+  setOpen(false);
+};
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (!open) { setOpen(true); return; }
