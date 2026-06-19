@@ -13,7 +13,7 @@ const CLINICS = [
   {
     id: "islamabad",
     name: "Islamabad Specialist Clinic, Satyana Road",
-    detail: "Timings: 7:30 PM – 9:30 PM",
+    detail: "Reg # PHC R-75672  · Timings: 7:30 PM – 9:30 PM",
   },
   {
     id: "siddique",
@@ -212,7 +212,9 @@ const DOSAGES: { en: string; ur: string }[] = [
 // ── Duration ──
 const DURATIONS_MED: { en: string; ur: string }[] = [
   { en: "3 days",            ur: "۳ دن" },
+  { en: "4 days",            ur: "۴ دن" },
   { en: "5 days",            ur: "۵ دن" },
+  { en: "6 days",            ur: "۶ دن" },
   { en: "7 days",            ur: "۷ دن" },
   { en: "10 days",           ur: "۱۰ دن" },
   { en: "14 days",           ur: "۱۴ دن" },
@@ -350,10 +352,8 @@ export default function NewPatientPage() {
   const buildPrintPatient = (mrNumber = "PREVIEW", visitDate: Date | string = new Date()) => ({
     name: form.name,
     gender: form.gender,
-    age: form.ageUnit === "Months"
-      ? (`${form.ageValue} months` as unknown as number)
-      : parseInt(form.ageValue),
-    mrNumber,
+    age: form.ageValue,
+     ageUnit: form.ageUnit,
     clinic: form.clinic,
     contact: form.contact,
     address: form.address,
@@ -384,7 +384,8 @@ export default function NewPatientPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name, gender: form.gender,
-          age: form.ageUnit ,
+          ageValue: form.ageValue,  
+          ageUnit: form.ageUnit, 
           complaint: complaintsText, clinicalExamination: clinicalExamText,
           diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
           medications: buildPrintPatient().medications,
@@ -393,7 +394,12 @@ export default function NewPatientPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to save");
       setSavedPatient({ mrNumber: json.data.mrNumber, visitDate: json.data.visitDate });
-      setTimeout(() => window.print(), 200);
+      const prevTitle = document.title;
+      document.title = json.data.mrNumber;
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { document.title = prevTitle; }, 1000);
+      }, 200);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally { setSaving(false); }
@@ -422,7 +428,17 @@ export default function NewPatientPage() {
           <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
             {!savedPatient
               ? <button onClick={handleSaveAndPrint} disabled={saving} style={btn("white")}>{saving ? "Saving…" : "💾 Save & Print"}</button>
-              : <><button onClick={() => window.print()} style={btn("white")}>🖨️ Print Again</button><button onClick={handleNew} style={btn("green")}>+ New Patient</button></>
+              : <><button
+  onClick={() => {
+    const prevTitle = document.title;
+    document.title = savedPatient.mrNumber;
+    window.print();
+    setTimeout(() => { document.title = prevTitle; }, 1000);
+  }}
+  style={btn("white")}
+>
+  🖨️ Print Again
+</button></>
             }
           </div>
         </div>
@@ -567,13 +583,16 @@ export default function NewPatientPage() {
 
         {/* ── Diagnosis ── */}
         <Card title="🔬 Diagnosis">
-          <SearchableSelect
-            options={DIAGNOSES.filter((d) => !form.diagnosis.includes(d))}
-            value=""
-            onChange={(v) => { if (v && DIAGNOSES.includes(v) && !form.diagnosis.includes(v)) toggleItem("diagnosis", v); }}
-            placeholder="Search and select diagnosis..."
-            clearAfterSelect
-          />
+<SearchableSelect
+  options={DIAGNOSES.filter((d) => !form.diagnosis.includes(d))}
+  value=""
+  onChange={(v) => {
+    if (v && !form.diagnosis.includes(v)) toggleItem("diagnosis", v);
+  }}
+  placeholder="Search or type a diagnosis..."
+  showAddButton
+  clearAfterSelect
+/>
           {form.diagnosis.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
               {form.diagnosis.map((d) => (
@@ -587,13 +606,16 @@ export default function NewPatientPage() {
 
         {/* ── Investigation ── */}
         <Card title="🧪 Investigation / Tests">
-          <SearchableSelect
-            options={INVESTIGATIONS.filter((inv) => !form.investigation.includes(inv))}
-            value=""
-            onChange={(v) => { if (v && INVESTIGATIONS.includes(v) && !form.investigation.includes(v)) toggleItem("investigation", v); }}
-            placeholder="Search and select investigation..."
-            clearAfterSelect
-          />
+<SearchableSelect
+  options={INVESTIGATIONS.filter((inv) => !form.investigation.includes(inv))}
+  value=""
+  onChange={(v) => {
+    if (v && !form.investigation.includes(v)) toggleItem("investigation", v);
+  }}
+  placeholder="Search or type an investigation..."
+  showAddButton
+  clearAfterSelect
+/>
           {form.investigation.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
               {form.investigation.map((inv) => (
