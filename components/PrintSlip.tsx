@@ -37,7 +37,7 @@ interface PrintSlipProps {
 const CLINICS: Record<string, { name: string; detail: string }> = {
   islamabad: {
     name: "Islamabad Specialist Clinic",
-    detail: "Timings: 7:30 PM – 9:30 PM",
+    detail: "Reg # PHC R-75672  · x   Timings: 7:30 PM – 9:30 PM",
   },
   siddique: {
     name: "Siddique Executive Clinic, Gulistan Colony",
@@ -114,6 +114,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
             <p style={{ fontSize: "8.5pt", color: "#555", margin: "1mm 0 0" }}>
               {clinic.detail}
             </p>
+           <p>VOC: ✔</p> 
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "8.5pt", color: "#444", margin: 0 }}>PMDC Reg. No: 28355-P</p>

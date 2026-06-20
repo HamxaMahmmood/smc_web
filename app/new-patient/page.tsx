@@ -45,7 +45,8 @@ const DURATIONS = [
   "Since birth","Intermittent","Chronic / recurrent",
 ];
 
-const GPE_DEFAULT = `Child is conscious, alert, well hydrated and cooperative. Weight ___ kg, height ___ cm, OFC ___ cm. Vitals stable. No pallor, icterus, cyanosis, clubbing, lymphadenopathy or edema. No dysmorphic features. Growth and development appropriate for age.`;
+const GPE_DEFAULT = `Anthropometery: Weight: ______ kg, Height/length: ______ cm, BMI: ______ kg/m², Head Circumference: ______ cm, Mid-Upper Arm Circumference (MUAC): ______ cm.\n
+ Vital Signs: Temperature: ______ °C, Pulse Rate: ______ bpm, Respiratory Rate: ______ breaths/min, Blood Pressure: ______ mmHg.`;
 
 const SYSTEMIC_DEFAULT = `Respiratory, cardiovascular, abdominal, and neurological examinations are unremarkable. No focal neurological deficit. No organomegaly. No evidence of respiratory distress or cardiac failure.`;
 
@@ -189,6 +190,20 @@ const FREQUENCIES: { en: string; ur: string }[] = [
 
 // ── Dosage ──
 const DOSAGES: { en: string; ur: string }[] = [
+  { en: "1 drop",            ur: "۱ قطرہ" },
+  { en: "2 drops",           ur: "۲ قطرے" },
+  { en: "3 drops",           ur: "۳ قطرے" },
+  { en: "4 drops",           ur: "۴ قطرے" },
+  { en: "5 drops",           ur: "۵ قطرے" },
+  { en: "6 drops",           ur: "۶ قطرے" },
+  { en: "7 drops",           ur: "۷ قطرے" },
+  { en: "8 drops",           ur: "۸ قطرے" },
+  { en: "9 drops",           ur: "۹ قطرے" },
+  { en: "10 drops",          ur: "۱۰ قطرے" },
+
+
+
+  { en: "0.5 ml",            ur: "۰.۵ ملی لیٹر" },
   { en: "1 ml",            ur: "۱ ملی لیٹر" },
   { en: "2 ml",            ur: "۲ ملی لیٹر" },
   { en: "2.5 ml",          ur: "۲.۵ ملی لیٹر" },
@@ -211,6 +226,8 @@ const DOSAGES: { en: string; ur: string }[] = [
 
 // ── Duration ──
 const DURATIONS_MED: { en: string; ur: string }[] = [
+  { en: "1 days",            ur: "۱ دن" },
+  { en: "2 days",            ur: "۲ دن" },
   { en: "3 days",            ur: "۳ دن" },
   { en: "4 days",            ur: "۴ دن" },
   { en: "5 days",            ur: "۵ دن" },
@@ -228,6 +245,13 @@ const DURATIONS_MED: { en: string; ur: string }[] = [
 
 // ── Instruction ──
 const INSTRUCTIONS: { en: string; ur: string }[] = [
+  { en: "Ear drops",           ur: "کان میں ڈالیں" },
+  { en: "Nose drops",           ur: "ناک میں ڈالیں" },
+  { en: "Apply on all body below neck", ur:"گردن سے نیچے ساری جلد پر لگائیں" },
+
+  
+  { en: "Eye drops",           ur: "آنکھ میں ڈالیں" },
+  { en: "Apply on skin",           ur: "جلد پر لگائیں" },
   { en: "Before meal",           ur: "کھانے سے پہلے" },
   { en: "After meal",            ur: "کھانے کے بعد" },
   { en: "With meal",             ur: "کھانے کے ساتھ" },
