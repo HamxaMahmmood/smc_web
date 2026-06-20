@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Siddique Medical Complex",
+  title: "Dr. Zahid Mahmood ",
   description: "Patient Management System — Dr. Zahid Mahmood",
 };
 

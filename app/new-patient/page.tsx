@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import PrintSlip from "@/components/PrintSlip";
 import SearchableSelect from "@/components/SearchableSelect";
@@ -115,62 +115,81 @@ const INVESTIGATIONS = [
   "Serum Immunoglobulins (IgG, IgA, IgM)","Antinuclear Antibody (ANA)",
 ];
 
-interface MedEntry { generic: string; brands: string[]; packages: string[]; }
+interface MedEntry { generic: string; brands: string[]; }
 
-const MEDICINES: MedEntry[] = [
-  { generic: "Amoxicillin", brands: ["Amoxil", "Wymox", "Ospamox", "Flemoxin"], packages: ["125mg/5ml Syrup (60ml)", "250mg/5ml Syrup (60ml)", "250mg Capsule", "500mg Capsule"] },
-  { generic: "Amoxicillin + Clavulanic Acid", brands: ["Augmentin", "Calamox", "Amclav", "Fixamox-CV"], packages: ["228mg/5ml Syrup (70ml)", "457mg/5ml Syrup (70ml)", "375mg Tablet", "625mg Tablet"] },
-  { generic: "Cefixime", brands: ["Cefspan", "Cefiget", "Cefim", "Suprax", "Fixef"], packages: ["50mg/5ml Syrup (30ml)", "100mg/5ml Syrup (30ml)", "200mg Tablet", "400mg Capsule"] },
-  { generic: "Azithromycin", brands: ["Azithrox", "Zithromax", "Azimax", "Zetro", "Azee"], packages: ["200mg/5ml Syrup (15ml)", "200mg/5ml Syrup (30ml)", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Clarithromycin", brands: ["Klaricid", "Rithmo", "Neo-Klar", "Clariwin"], packages: ["125mg/5ml Syrup (60ml)", "250mg/5ml Syrup (60ml)", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Co-Trimoxazole (TMP-SMX)", brands: ["Bactrim", "Septran", "Cotrim"], packages: ["Pediatric Syrup (60ml)", "480mg Tablet (Double Strength)"] },
-  { generic: "Metronidazole", brands: ["Flagyl", "Metrozine", "Metris"], packages: ["200mg/5ml Syrup (60ml)", "200mg Tablet", "400mg Tablet"] },
-  { generic: "Cefuroxime", brands: ["Zinnat", "Cefurox", "Xetil"], packages: ["125mg/5ml Syrup (50ml)", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Cefpodoxime", brands: ["Cepodem", "Vantin", "Podofix"], packages: ["50mg/5ml Syrup (30ml)", "100mg Tablet", "200mg Tablet"] },
-  { generic: "Cephalexin", brands: ["Ceporex", "Keflex", "Ospexin"], packages: ["125mg/5ml Syrup (60ml)", "250mg/5ml Syrup (60ml)", "250mg Capsule", "500mg Capsule"] },
-  { generic: "Ampicillin + Cloxacillin", brands: ["Ampiclox", "Cloxamp"], packages: ["125mg/5ml Syrup (60ml)", "250mg Capsule", "500mg Capsule"] },
-  { generic: "Erythromycin", brands: ["Erythrocin", "Eritop", "Ery-Tab"], packages: ["125mg/5ml Syrup (60ml)", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Paracetamol", brands: ["Panadol", "Calpol", "Tempra", "Febrex", "Provas"], packages: ["80mg Drops (15ml)", "120mg/5ml Syrup (60ml)", "160mg/5ml Syrup (60ml)", "250mg/5ml Syrup (100ml)", "125mg Suppository", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Ibuprofen", brands: ["Brufen", "Nurofen", "Advil", "Calprofen"], packages: ["100mg/5ml Syrup (60ml)", "200mg/5ml Syrup (60ml)", "200mg Tablet", "400mg Tablet"] },
-  { generic: "Mefenamic Acid", brands: ["Ponstan", "Mefeget", "Meftal"], packages: ["50mg/5ml Syrup (60ml)", "250mg Capsule", "500mg Tablet"] },
-  { generic: "Chlorpheniramine Maleate (CPM)", brands: ["Piriton", "Histapan", "Chlor-Trimeton"], packages: ["2mg/5ml Syrup (60ml)", "4mg Tablet"] },
-  { generic: "Cetirizine", brands: ["Zyrtec", "Cetizin", "Reactine", "Allercet"], packages: ["5mg/5ml Syrup (60ml)", "10mg Tablet"] },
-  { generic: "Loratadine", brands: ["Claritin", "Loratab", "Clarityn"], packages: ["5mg/5ml Syrup (60ml)", "10mg Tablet"] },
-  { generic: "Levocetirizine", brands: ["Xyzal", "Levocet", "Allerkid"], packages: ["2.5mg/5ml Syrup (60ml)", "5mg Tablet"] },
-  { generic: "Fexofenadine", brands: ["Allegra", "Fexet", "Fexo"], packages: ["30mg/5ml Syrup (60ml)", "120mg Tablet", "180mg Tablet"] },
-  { generic: "Montelukast", brands: ["Singulair", "Monteget", "Montecon", "Montair"], packages: ["4mg Chewable Tablet", "5mg Chewable Tablet", "10mg Tablet"] },
-  { generic: "Salbutamol", brands: ["Ventolin", "Asthalin", "Salbuvent"], packages: ["2mg/5ml Syrup (60ml)", "2mg Tablet", "4mg Tablet", "100mcg Inhaler (200 doses)", "Nebulization Solution 2.5ml"] },
-  { generic: "Budesonide (Nebulization)", brands: ["Pulmicort", "Budes"], packages: ["0.25mg/2ml Nebulization", "0.5mg/2ml Nebulization"] },
-  { generic: "Fluticasone + Salmeterol Inhaler", brands: ["Seretide", "Fixovent", "Advair"], packages: ["50/25mcg Inhaler", "125/25mcg Inhaler", "250/25mcg Inhaler"] },
-  { generic: "Beclomethasone Inhaler", brands: ["Beclate", "Becloforte", "Qvar"], packages: ["50mcg Inhaler (200 doses)", "100mcg Inhaler (200 doses)"] },
-  { generic: "Ambroxol", brands: ["Mucosolvan", "Ambril", "Mucohexin"], packages: ["15mg/5ml Syrup (60ml)", "30mg Tablet"] },
-  { generic: "Bromhexine", brands: ["Bisolvon", "Bromex"], packages: ["4mg/5ml Syrup (60ml)", "8mg Tablet"] },
-  { generic: "Oral Rehydration Salts (ORS)", brands: ["ORS WHO Formula", "Glucolyte", "Rehidrat"], packages: ["Sachet (in 200ml water)", "Sachet (in 1L water)"] },
-  { generic: "Zinc Sulfate", brands: ["Zevit", "Zincovit", "Solvazinc"], packages: ["10mg/5ml Syrup (60ml)", "10mg Dispersible Tablet", "20mg Dispersible Tablet"] },
-  { generic: "Domperidone", brands: ["Motilium", "Dompil", "Cinet"], packages: ["5mg/5ml Syrup (60ml)", "10mg Tablet"] },
-  { generic: "Ondansetron", brands: ["Zofran", "Anset", "Emeset"], packages: ["4mg/5ml Syrup (50ml)", "4mg Tablet", "8mg Tablet"] },
-  { generic: "Omeprazole", brands: ["Omez", "Losec", "Prilosec"], packages: ["10mg Capsule", "20mg Capsule", "40mg Tablet"] },
-  { generic: "Ranitidine", brands: ["Zantac", "Rantac"], packages: ["75mg/5ml Syrup (60ml)", "150mg Tablet"] },
-  { generic: "Lactulose", brands: ["Duphalac", "Lactihep"], packages: ["3.35g/5ml Solution (200ml)", "3.35g/5ml Solution (300ml)"] },
-  { generic: "Dicyclomine", brands: ["Merbentyl", "Spasmogon"], packages: ["10mg/5ml Syrup (60ml)", "10mg Tablet", "20mg Tablet"] },
-  { generic: "Metoclopramide", brands: ["Maxolon", "Plasil"], packages: ["5mg/5ml Syrup (60ml)", "10mg Tablet"] },
-  { generic: "Prednisolone", brands: ["Pred", "Deltacortril", "Predone"], packages: ["5mg/5ml Syrup (60ml)", "5mg Tablet", "10mg Tablet", "25mg Tablet"] },
-  { generic: "Dexamethasone", brands: ["Decadron", "Dexona", "Fortecortin"], packages: ["0.5mg/5ml Syrup", "0.5mg Tablet", "4mg Injection"] },
-  { generic: "Albendazole", brands: ["Zentel", "Alben", "Eskazole"], packages: ["200mg/5ml Syrup (10ml)", "400mg Chewable Tablet"] },
-  { generic: "Mebendazole", brands: ["Vermox", "Sqworm", "Meben"], packages: ["100mg/5ml Syrup (30ml)", "100mg Tablet", "500mg Tablet"] },
-  { generic: "Pyrantel Pamoate", brands: ["Combantrin", "Antiminth"], packages: ["50mg/ml Syrup (15ml)", "250mg Tablet"] },
-  { generic: "Vitamin D3", brands: ["D-Vit", "D-Sol", "Vitafol-D"], packages: ["400 IU Drops", "800 IU Drops", "1000 IU Tablet", "50,000 IU Capsule"] },
-  { generic: "Iron (Ferrous Sulfate)", brands: ["Ferodan", "Ferose", "Fer-In-Sol", "Iberet"], packages: ["15mg/ml Drops (50ml)", "25mg/5ml Syrup (100ml)", "325mg Tablet"] },
-  { generic: "Calcium + Vitamin D", brands: ["CAC-1000", "Calcivit-D", "Sandocal"], packages: ["Sachet", "Chewable Tablet", "500mg+200IU Tablet"] },
-  { generic: "Multivitamin Drops", brands: ["Vidaylin", "Polyviflor", "Abidec", "Vitago"], packages: ["Oral Drops (15ml)", "Oral Drops (30ml)"] },
-  { generic: "Folic Acid", brands: ["Folvite", "Folic-5"], packages: ["5mg Tablet", "15mg/5ml Syrup (60ml)"] },
-  { generic: "Phenobarbitone", brands: ["Luminal", "Gardenal"], packages: ["15mg/5ml Syrup (60ml)", "30mg Tablet", "60mg Tablet"] },
-  { generic: "Sodium Valproate", brands: ["Epilim", "Valparin", "Depakine"], packages: ["200mg/5ml Syrup (300ml)", "200mg Tablet", "500mg Tablet"] },
-  { generic: "Levetiracetam", brands: ["Keppra", "Levepsy", "Levitam"], packages: ["100mg/ml Solution (300ml)", "250mg Tablet", "500mg Tablet"] },
-  { generic: "Diazepam", brands: ["Valium", "Stesolid", "Diapam"], packages: ["5mg/2.5ml Rectal Gel", "5mg/ml Injection", "5mg Tablet"] },
-  { generic: "Chloroquine", brands: ["Aralen", "Avloclor"], packages: ["50mg/5ml Syrup (60ml)", "150mg Tablet"] },
-  { generic: "Artemether + Lumefantrine", brands: ["Coartem", "Riamet"], packages: ["20mg/120mg Tablet"] },
+// ─── Hardcoded package/strength options, shared across all medicines ───
+const TABLET_CAPSULE_STRENGTHS = [
+  "2.5mg","5mg","10mg","20mg","25mg","40mg","50mg","75mg","80mg","100mg",
+  "125mg","150mg","200mg","250mg","300mg","400mg","500mg","600mg","750mg","800mg","1000mg",
 ];
+const CHEWABLE_STRENGTHS = ["2mg","4mg","5mg","10mg"];
+const DISPERSIBLE_STRENGTHS = ["10mg","20mg","50mg","100mg"];
+
+const SYRUP_STRENGTHS = [
+  "60mg/5ml","100mg/5ml","120mg/5ml","125mg/5ml","150mg/5ml","160mg/5ml",
+  "200mg/5ml","228mg/5ml","250mg/5ml","400mg/5ml","457mg/5ml",
+];
+const SYRUP_VOLUMES = ["15ml","30ml","60ml","100ml","120ml","200ml"];
+
+const DROPS_STRENGTHS = ["10mg/ml","15mg/ml","20mg/ml","40mg/ml","50mg/ml","80mg"];
+const DROPS_VOLUMES = ["10ml","15ml","30ml"];
+
+const INJECTION_STRENGTHS = [
+  "1mg/ml","2mg/ml","5mg/ml","10mg/ml","20mg/ml","25mg/ml","40mg/ml","50mg/ml",
+  "100mg/ml","250mg","500mg","1g","2g",
+];
+const INJECTION_VOLUMES = ["1ml Ampoule","2ml Ampoule","5ml Vial","10ml Vial","Vial (Lyophilized)"];
+
+const TOPICAL_FORMS = ["Cream","Ointment","Gel","Lotion"];
+const TOPICAL_PERCENT = ["0.025%","0.05%","0.1%","0.5%","1%","2%","5%","10%"];
+const TOPICAL_SIZES = ["15g","30g","50g"];
+
+const INHALER_STRENGTHS = ["50mcg","100mcg","125mcg","200mcg","250mcg"];
+const NEB_STRENGTHS = ["0.25mg/2ml","0.5mg/2ml","1.25mg/2.5ml","2.5mg/2.5ml","5mg/2.5ml"];
+
+const SUPPOSITORY_STRENGTHS = ["60mg","80mg","125mg","150mg","250mg","325mg","500mg"];
+const SACHET_STRENGTHS = ["1g","2g","3.5g","4g","5g","10g"];
+
+const EYE_PERCENT = ["0.1%","0.3%","0.5%","1%","2%","3%"];
+const EYE_VOLUMES = ["5ml","10ml"];
+const EAR_PERCENT = ["0.1%","0.3%","0.5%","1%","2%","3%"];
+
+function buildPackages(): string[] {
+  const out: string[] = [];
+
+  TABLET_CAPSULE_STRENGTHS.forEach((s) => out.push(`${s} Tablet`));
+  TABLET_CAPSULE_STRENGTHS.forEach((s) => out.push(`${s} Capsule`));
+  CHEWABLE_STRENGTHS.forEach((s) => out.push(`${s} Chewable Tablet`));
+  DISPERSIBLE_STRENGTHS.forEach((s) => out.push(`${s} Dispersible Tablet`));
+
+  SYRUP_STRENGTHS.forEach((s) => SYRUP_VOLUMES.forEach((v) => out.push(`${s} Syrup (${v})`)));
+  SYRUP_STRENGTHS.forEach((s) => SYRUP_VOLUMES.forEach((v) => out.push(`${s} Suspension (${v})`)));
+
+  DROPS_STRENGTHS.forEach((s) => DROPS_VOLUMES.forEach((v) => out.push(`${s} Drops (${v})`)));
+
+  INJECTION_STRENGTHS.forEach((s) => INJECTION_VOLUMES.forEach((v) => out.push(`${s} Injection (${v})`)));
+
+  TOPICAL_FORMS.forEach((form) =>
+    TOPICAL_PERCENT.forEach((p) =>
+      TOPICAL_SIZES.forEach((sz) => out.push(`${p} ${form} (${sz})`))
+    )
+  );
+
+  INHALER_STRENGTHS.forEach((s) => out.push(`${s} Inhaler (200 doses)`));
+  NEB_STRENGTHS.forEach((s) => out.push(`${s} Nebulization Solution`));
+  SUPPOSITORY_STRENGTHS.forEach((s) => out.push(`${s} Suppository`));
+  SACHET_STRENGTHS.forEach((s) => out.push(`${s} Sachet`));
+
+  EYE_PERCENT.forEach((p) => EYE_VOLUMES.forEach((v) => out.push(`${p} Eye Drops (${v})`)));
+  EAR_PERCENT.forEach((p) => out.push(`${p} Ear Drops (10ml)`));
+
+  out.push("As directed");
+
+  return out;
+}
+
+const PACKAGES: string[] = buildPackages();
+
 
 // ── Frequency ──
 const FREQUENCIES: { en: string; ur: string }[] = [
@@ -335,6 +354,23 @@ export default function NewPatientPage() {
   const [saving, setSaving] = useState(false);
   const [savedPatient, setSavedPatient] = useState<{ mrNumber: string; visitDate: Date } | null>(null);
   const [error, setError] = useState("");
+  const [medicineBank, setMedicineBank] = useState<MedEntry[]>([]);
+
+useEffect(() => {
+  fetch("/api/medicines")
+    .then((res) => res.json())
+    .then((json) => {
+      if (json.success) {
+        setMedicineBank(
+          json.data.map((m: { generic: string; brands: string[] }) => ({
+            generic: m.generic,
+            brands: m.brands,
+          }))
+        );
+      }
+    })
+    .catch(() => {});
+}, []);
   const printRef = useRef<HTMLDivElement>(null);
 
   const setComplaintField = (i: number, field: keyof ComplaintEntry, val: string) =>
@@ -351,11 +387,11 @@ export default function NewPatientPage() {
   const setMed = (i: number, field: keyof Medication, val: string) =>
     setForm((f) => { const m = [...f.medications]; m[i] = { ...m[i], [field]: val }; return { ...f, medications: m }; });
 
-  const setMedGeneric = (i: number, val: string) => {
-    const entry = MEDICINES.find((m) => m.generic === val);
+const setMedGeneric = (i: number, val: string) => {
+    const entry = medicineBank.find((m) => m.generic.toLowerCase() === val.toLowerCase());
     setForm((f) => {
       const m = [...f.medications];
-      m[i] = { ...m[i], generic: val, brand: entry?.brands[0] || "", package: entry?.packages[0] || "" };
+      m[i] = { ...m[i], generic: val, brand: entry?.brands[0] || "" };
       return { ...f, medications: m };
     });
   };
@@ -400,9 +436,24 @@ export default function NewPatientPage() {
     setError(""); setStep("preview");
   };
 
-  const handleSaveAndPrint = async () => {
+
+  const syncMedicinesToDatabase = async () => {
+  const calls = form.medications
+    .filter((m) => m.generic.trim())
+    .map((m) =>
+      fetch("/api/medicines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ generic: m.generic.trim(), brand: m.brand.trim() }),
+      }).catch(() => null)
+    );
+  await Promise.allSettled(calls);
+};
+
+const handleSaveAndPrint = async () => {
     setSaving(true); setError("");
     try {
+      await syncMedicinesToDatabase();
       const res = await fetch("/api/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -410,6 +461,7 @@ export default function NewPatientPage() {
           name: form.name, gender: form.gender,
           ageValue: form.ageValue,  
           ageUnit: form.ageUnit, 
+          clinic: form.clinic,
           complaint: complaintsText, clinicalExamination: clinicalExamText,
           diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
           medications: buildPrintPatient().medications,
@@ -654,7 +706,7 @@ export default function NewPatientPage() {
         {/* ── Medications ── */}
         <Card title="💊 Medications">
           {form.medications.map((med, i) => {
-            const entry = MEDICINES.find((m) => m.generic === med.generic);
+            const entry = medicineBank.find((m) => m.generic.toLowerCase() === med.generic.toLowerCase());
             return (
               <div key={i} style={{ border: "1px solid #c8d8f0", borderRadius: "10px", padding: "16px", marginBottom: "14px", background: "#f8faff" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
@@ -662,9 +714,10 @@ export default function NewPatientPage() {
                   {form.medications.length > 1 && <button onClick={() => removeMed(i)} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", fontSize: "13px", fontWeight: "600" }}>✕ Remove</button>}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                  <div><Label>Generic Name</Label><SearchableSelect options={MEDICINES.map((m) => m.generic)} value={med.generic} onChange={(v) => setMedGeneric(i, v)} placeholder="e.g. Amoxicillin" /></div>
+                  
+                  <div><Label>Generic Name</Label><SearchableSelect options={medicineBank.map((m) => m.generic)} value={med.generic} onChange={(v) => setMedGeneric(i, v)} placeholder="e.g. Amoxicillin" /></div>
                   <div><Label>Brand Name (Pakistan)</Label><SearchableSelect options={entry?.brands || []} value={med.brand} onChange={(v) => setMed(i, "brand", v)} placeholder="e.g. Amoxil" /></div>
-                  <div><Label>Package / Strength</Label><SearchableSelect options={entry?.packages || []} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="e.g. 125mg/5ml" /></div>
+                  <div><Label>Package / Strength</Label><SearchableSelect options={PACKAGES} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="e.g. 125mg/5ml" /></div>
                 </div>
               {/* English */}
 <div style={{ marginBottom: "6px" }}><span style={langBadge("en")}>English</span></div>

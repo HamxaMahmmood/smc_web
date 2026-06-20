@@ -1,17 +1,26 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+// IMedication interface — add the four Urdu fields
 export interface IMedication {
   drug: string;
   frequency: string;
   dosage: string;
   duration: string;
   instruction: string;
+  frequencyUrdu?: string;
+  dosageUrdu?: string;
+  durationUrdu?: string;
+  instructionUrdu?: string;
 }
 
+
+// IPatient interface — add clinic
 export interface IPatient extends Document {
   name: string;
   gender: "Male" | "Female" | "Other";
   age: number;
+  ageUnit: "Years" | "Months";
+  clinic: string;
   mrNumber: string;
   complaint: string;
   clinicalExamination: string;
@@ -22,12 +31,17 @@ export interface IPatient extends Document {
   createdAt: Date;
 }
 
+// MedicationSchema — add the four Urdu fields
 const MedicationSchema = new Schema<IMedication>({
   drug: { type: String, required: true },
   frequency: { type: String, default: "" },
   dosage: { type: String, default: "" },
   duration: { type: String, default: "" },
   instruction: { type: String, default: "" },
+  frequencyUrdu: { type: String, default: "" },
+  dosageUrdu: { type: String, default: "" },
+  durationUrdu: { type: String, default: "" },
+  instructionUrdu: { type: String, default: "" },
 });
 
 const PatientSchema = new Schema<IPatient>(
@@ -35,6 +49,8 @@ const PatientSchema = new Schema<IPatient>(
     name: { type: String, required: true, trim: true },
     gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
     age: { type: Number, required: true },
+    ageUnit: { type: String, enum: ["Years", "Months"], default: "Years" },
+    clinic: { type: String, enum: ["islamabad", "siddique"], default: "islamabad" },
     mrNumber: { type: String, required: true, unique: true, trim: true },
     complaint: { type: String, default: "" },
     clinicalExamination: { type: String, default: "" },

@@ -79,21 +79,25 @@ export async function POST(req: NextRequest) {
       try {
         const mrNumber = await generateMRNumber();
 
-        const patient = new Patient({
-          name:               body.name.trim().slice(0, 200),
-          gender:             ["Male", "Female", "Other"].includes(body.gender)
-                                ? body.gender
-                                : "Male",
-          age:                ageNum,
-          ageUnit:            body.ageUnit === "Months" ? "Months" : "Years",
-          mrNumber,
-          complaint:          (body.complaint          || "").trim().slice(0, 2000),
-          clinicalExamination:(body.clinicalExamination|| "").trim().slice(0, 5000),
-          diagnosis:          (body.diagnosis          || "").trim().slice(0, 2000),
-          investigation:      (body.investigation      || "").trim().slice(0, 2000),
-          medications,
-          visitDate:          new Date(),
-        });
+        // inside the retry loop, when building `new Patient({...})` — add clinic
+const patient = new Patient({
+  name:               body.name.trim().slice(0, 200),
+  gender:             ["Male", "Female", "Other"].includes(body.gender)
+                        ? body.gender
+                        : "Male",
+  age:                ageNum,
+  ageUnit:            body.ageUnit === "Months" ? "Months" : "Years",
+  clinic:             ["islamabad", "siddique"].includes(body.clinic)
+                        ? body.clinic
+                        : "islamabad",
+  mrNumber,
+  complaint:          (body.complaint          || "").trim().slice(0, 2000),
+  clinicalExamination:(body.clinicalExamination|| "").trim().slice(0, 5000),
+  diagnosis:          (body.diagnosis          || "").trim().slice(0, 2000),
+  investigation:      (body.investigation      || "").trim().slice(0, 2000),
+  medications,
+  visitDate:          new Date(),
+});
 
         await patient.save();
         savedPatient = patient;
