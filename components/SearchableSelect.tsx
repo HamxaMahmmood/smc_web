@@ -107,6 +107,7 @@ export default function SearchableSelect({
             setHighlighted(0);
           }}
           onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
           onKeyDown={handleKey}
           placeholder={placeholder}
           autoComplete="off"

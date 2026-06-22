@@ -104,7 +104,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         <p style={{ textAlign: "center", fontSize: "9pt", color: "#444", margin: "1.5mm 0 0" }}>
           MBBS, FCPS &nbsp;·&nbsp; Consultant Paediatrician
         </p>
-        <p style={{ textAlign: "center", fontSize: "9pt", color: "#444", margin: "1.5mm 0 0" }}>
+        <p style={{ textAlign: "center",fontFamily: "Times New Roman", fontSize: "9pt", color: "#444", margin: "1.5mm 0 0" }}>
           0333-6507982 &nbsp;·&nbsp; 0312-6507982
         </p>
 
@@ -117,12 +117,12 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
               {clinic.detail}
             </p>
             <p>
-              <span style={{ fontSize: "8.5pt", color: "#444" }}>Phone: {clinic.phone}</span>
+              <span style={{ fontSize: "8.5pt", fontFamily: "Times New Roman", color: "#444" }}>Phone: {clinic.phone}</span>
             </p>
            <p>VOC: ✔</p> 
           </div>
           <div style={{ textAlign: "right" }}>
-            <p style={{ fontSize: "8.5pt", color: "#444", margin: 0 }}>PMDC Reg. No: 28355-P</p>
+            <p style={{ fontSize: "8.5pt", fontFamily: "Times New Roman", color: "#444", margin: 0 }}>PMDC Reg. No: 28355-P</p>
           </div>
         </div>
       </div>
@@ -134,11 +134,11 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         flexWrap: "wrap", gap: "3mm", alignItems: "center", justifyContent: "space-between",
       }}>
         <span style={{ fontWeight: "bold", fontSize: "11pt" }}>{patient.name}</span>
-        <span style={{ fontSize: "10pt" }}>{patient.gender} | {patient.age} {patient.ageUnit} old</span>
-        {patient.contact && <span style={{ fontSize: "9.5pt" }}>📞 {patient.contact}</span>}
-        {patient.address && <span style={{ fontSize: "9pt", color: "#444" }}>📍 {patient.address}</span>}
-        <span style={{ fontSize: "10pt" }}><strong>MR#:</strong> {patient.mrNumber}</span>
-        <span style={{ fontSize: "9pt", color: "#555" }}>{dateStr} — {timeStr}</span>
+        <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}>{patient.gender} | {patient.age} {patient.ageUnit} old</span>
+        {patient.contact && <span style={{ fontSize: "9.5pt", fontFamily: "Times New Roman" }}>📞 {patient.contact}</span>}
+        {patient.address && <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#444" }}>📍 {patient.address}</span>}
+        <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}><strong>MR#:</strong> {patient.mrNumber}</span>
+        <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#555" }}>{dateStr} — {timeStr}</span>
       </div>
 
       {/* ── Complaint (numbered) ── */}
