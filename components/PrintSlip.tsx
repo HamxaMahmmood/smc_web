@@ -34,14 +34,16 @@ interface PrintSlipProps {
   };
 }
 
-const CLINICS: Record<string, { name: string; detail: string }> = {
+const CLINICS: Record<string, { name: string; detail: string; phone: string }> = {
   islamabad: {
-    name: "Islamabad Specialist Clinic",
-    detail: "Reg # PHC R-75672  · x   Timings: 7:30 PM – 9:30 PM",
+    name: "Islamabad Specialist Clinic (IDC) Satyana Road, Faisalabad",
+    detail: "Reg # PHC R-75672  ·   Timings: 7:30 PM – 9:30 PM (Monday to Friday)" ,
+    phone: "041-8712828 , 03438530064",
   },
   siddique: {
-    name: "Siddique Executive Clinic, Gulistan Colony",
-    detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM",
+    name: "Siddique Executive Clinic (Hospital) Gulistan Colony, Faisalabad",
+    detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM (Monday to Saturday) " ,
+    phone: "041 8848024",
   },
 };
 
@@ -113,6 +115,9 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
             </p>
             <p style={{ fontSize: "8.5pt", color: "#555", margin: "1mm 0 0" }}>
               {clinic.detail}
+            </p>
+            <p>
+              <span style={{ fontSize: "8.5pt", color: "#444" }}>Phone: {clinic.phone}</span>
             </p>
            <p>VOC: ✔</p> 
           </div>
@@ -253,7 +258,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
       {followUpDisplay && (
         <div style={{ marginTop: "6mm", display: "inline-flex", alignItems: "center", gap: "6mm", border: "1px solid #1a3a6b", borderRadius: "3mm", padding: "2.5mm 5mm" }}>
           <span style={{ fontSize: "10pt", color: "#1a3a6b" }}>📅</span>
-          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt" }}>Follow-up visit:</span>
+          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt" }}>Follow-up visit: (دوبارہ معائنہ کروانے کی تاریخ)</span>
           <span style={{ fontSize: "10pt" }}>{followUpDisplay}</span>
         </div>
       )}

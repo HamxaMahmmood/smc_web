@@ -12,12 +12,12 @@ import SearchableSelect from "@/components/SearchableSelect";
 const CLINICS = [
   {
     id: "islamabad",
-    name: "Islamabad Specialist Clinic, Satyana Road",
+    name: "Islamabad Specialist Clinic Satyana Road, Faisalabad",
     detail: "Reg # PHC R-75672  · Timings: 7:30 PM – 9:30 PM",
   },
   {
     id: "siddique",
-    name: "Siddique Executive Clinic, Gulistan Colony",
+    name: "Siddique Executive Clinic Gulistan Colony, Faisalabad",
     detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM",
   },
 ];
@@ -264,10 +264,12 @@ const DURATIONS_MED: { en: string; ur: string }[] = [
 
 // ── Instruction ──
 const INSTRUCTIONS: { en: string; ur: string }[] = [
+
   { en: "Ear drops",           ur: "کان میں ڈالیں" },
   { en: "Nose drops",           ur: "ناک میں ڈالیں" },
   { en: "Apply on all body below neck", ur:"گردن سے نیچے ساری جلد پر لگائیں" },
 
+  { en: "Nebulization",           ur: "دوا کی بھاپ دیں" },
   
   { en: "Eye drops",           ur: "آنکھ میں ڈالیں" },
   { en: "Apply on skin",           ur: "جلد پر لگائیں" },
@@ -323,6 +325,8 @@ interface PatientForm {
   investigation: string[];
   medications: Medication[];
   followUpDate: string;
+  isReturning: boolean;
+  returningMrNumber: string;
 }
 
 const emptyComplaint = (): ComplaintEntry => ({ symptom: "", duration: "" });
@@ -340,6 +344,8 @@ const initialForm: PatientForm = {
   diagnosis: [], investigation: [],
   medications: [emptyMed()],
   followUpDate: "",
+  isReturning: false,
+  returningMrNumber: "",
 };
 
 type Step = "form" | "preview";
@@ -355,7 +361,12 @@ export default function NewPatientPage() {
   const [savedPatient, setSavedPatient] = useState<{ mrNumber: string; visitDate: Date } | null>(null);
   const [error, setError] = useState("");
   const [medicineBank, setMedicineBank] = useState<MedEntry[]>([]);
-
+  const [dbComplaints, setDbComplaints] = useState<string[]>([]);
+  const [dbDiagnoses, setDbDiagnoses] = useState<string[]>([]);
+  const [dbInvestigations, setDbInvestigations] = useState<string[]>([]);
+  const [mrLookupLoading, setMrLookupLoading] = useState(false);
+  const [mrLookupError, setMrLookupError] = useState("");
+  const [shouldPrint, setShouldPrint] = useState(false);
 useEffect(() => {
   fetch("/api/medicines")
     .then((res) => res.json())
@@ -371,6 +382,41 @@ useEffect(() => {
     })
     .catch(() => {});
 }, []);
+
+  useEffect(() => {
+  Promise.all([
+    fetch("/api/complaints").then((r) => r.json()),
+    fetch("/api/diagnoses").then((r) => r.json()),
+    fetch("/api/investigations").then((r) => r.json()),
+  ])
+    .then(([comp, diag, inv]) => {
+      if (comp.success) {
+        const names = comp.data.map((c: { name: string }) => c.name);
+        setDbComplaints(names.filter((n: string) => !COMPLAINTS.includes(n)));
+      }
+      if (diag.success) {
+        const names = diag.data.map((d: { name: string }) => d.name);
+        setDbDiagnoses(names.filter((n: string) => !DIAGNOSES.includes(n)));
+      }
+      if (inv.success) {
+        const names = inv.data.map((i: { name: string }) => i.name);
+        setDbInvestigations(names.filter((n: string) => !INVESTIGATIONS.includes(n)));
+      }
+    })
+    .catch(() => {});
+}, []);
+
+useEffect(() => {
+  if (!savedPatient || !shouldPrint) return;
+  const prevTitle = document.title;
+  document.title = savedPatient.mrNumber;
+  const t = setTimeout(() => {
+    window.print();
+    setShouldPrint(false);
+    setTimeout(() => { document.title = prevTitle; }, 1000);
+  }, 300);
+  return () => clearTimeout(t);
+}, [savedPatient, shouldPrint]);
   const printRef = useRef<HTMLDivElement>(null);
 
   const setComplaintField = (i: number, field: keyof ComplaintEntry, val: string) =>
@@ -388,13 +434,12 @@ useEffect(() => {
     setForm((f) => { const m = [...f.medications]; m[i] = { ...m[i], [field]: val }; return { ...f, medications: m }; });
 
 const setMedGeneric = (i: number, val: string) => {
-    const entry = medicineBank.find((m) => m.generic.toLowerCase() === val.toLowerCase());
-    setForm((f) => {
-      const m = [...f.medications];
-      m[i] = { ...m[i], generic: val, brand: entry?.brands[0] || "" };
-      return { ...f, medications: m };
-    });
-  };
+  setForm((f) => {
+    const m = [...f.medications];
+    m[i] = { ...m[i], generic: val, brand: "" };
+    return { ...f, medications: m };
+  });
+};
 
   const addMed = () => setForm((f) => ({ ...f, medications: [...f.medications, emptyMed()] }));
   const removeMed = (i: number) => setForm((f) => ({ ...f, medications: f.medications.filter((_, idx) => idx !== i) }));
@@ -436,6 +481,36 @@ const setMedGeneric = (i: number, val: string) => {
     setError(""); setStep("preview");
   };
 
+  const handleMrLookup = async () => {
+  const mr = form.returningMrNumber.trim();
+  if (!mr) return;
+  setMrLookupLoading(true);
+  setMrLookupError("");
+  try {
+    const res = await fetch(`/api/patients?mrNumber=${encodeURIComponent(mr)}`);
+    const json = await res.json();
+    if (!json.success || !json.data) {
+      setMrLookupError("MR number not found. Please check and try again.");
+      setForm((f) => ({ ...f, isReturning: false }));
+      return;
+    }
+    const p = json.data;
+    setForm((f) => ({
+      ...f,
+      isReturning: true,
+      name:     p.name    || f.name,
+      gender:   p.gender  || f.gender,
+      ageValue: String(p.age ?? f.ageValue),
+      ageUnit:  p.ageUnit || f.ageUnit,
+      contact:  p.contact || f.contact,
+      address:  p.address || f.address,
+    }));
+  } catch {
+    setMrLookupError("Something went wrong. Please try again.");
+  } finally {
+    setMrLookupLoading(false);
+  }
+};
 
   const syncMedicinesToDatabase = async () => {
   const calls = form.medications
@@ -450,39 +525,80 @@ const setMedGeneric = (i: number, val: string) => {
   await Promise.allSettled(calls);
 };
 
+const syncCustomEntries = async () => {
+  const complaintCalls = form.complaints
+    .map((c) => c.symptom.trim())
+    .filter(Boolean)
+    .map((name) =>
+      fetch("/api/complaints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).catch(() => null)
+    );
+
+  const diagnosisCalls = form.diagnosis
+    .map((d) => d.trim())
+    .filter(Boolean)
+    .map((name) =>
+      fetch("/api/diagnoses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).catch(() => null)
+    );
+
+  const investigationCalls = form.investigation
+    .map((i) => i.trim())
+    .filter(Boolean)
+    .map((name) =>
+      fetch("/api/investigations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).catch(() => null)
+    );
+
+  await Promise.allSettled([...complaintCalls, ...diagnosisCalls, ...investigationCalls]);
+};
+
 const handleSaveAndPrint = async () => {
     setSaving(true); setError("");
     try {
       await syncMedicinesToDatabase();
+      await syncCustomEntries();
       const res = await fetch("/api/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name, gender: form.gender,
-          ageValue: form.ageValue,  
-          ageUnit: form.ageUnit, 
-          clinic: form.clinic,
-          complaint: complaintsText, clinicalExamination: clinicalExamText,
-          diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
-          medications: buildPrintPatient().medications,
-        }),
+       body: JSON.stringify({
+        name: form.name, gender: form.gender,
+        ageValue: form.ageValue,
+        ageUnit: form.ageUnit,
+        clinic: form.clinic,
+        contact: form.contact,
+        address: form.address,
+        ...(form.isReturning && { mrNumber: form.returningMrNumber.trim() }),
+        complaint: complaintsText, clinicalExamination: clinicalExamText,
+        diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
+        medications: buildPrintPatient().medications,
+}),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to save");
       setSavedPatient({ mrNumber: json.data.mrNumber, visitDate: json.data.visitDate });
-      const prevTitle = document.title;
-      document.title = json.data.mrNumber;
-      setTimeout(() => {
-        window.print();
-        setTimeout(() => { document.title = prevTitle; }, 1000);
-      }, 200);
+      setShouldPrint(true);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally { setSaving(false); }
   };
 
-  const handleNew = () => { setForm(initialForm); setSavedPatient(null); setStep("form"); setError(""); };
-
+  const handleNew = () => { 
+  setForm(initialForm); 
+  setSavedPatient(null); 
+  setStep("form"); 
+  setError(""); 
+  setMrLookupError(""); 
+};
   // ── Follow-up display ──
   const followUpDisplay = form.followUpDate
     ? new Date(form.followUpDate + "T00:00:00").toLocaleDateString("en-GB", {
@@ -502,21 +618,29 @@ const handleSaveAndPrint = async () => {
           <button onClick={() => setStep("form")} style={btn("ghost")}>← Back</button>
           <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>Dr. Zahid Mahmood</span>
           <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
-            {!savedPatient
-              ? <button onClick={handleSaveAndPrint} disabled={saving} style={btn("white")}>{saving ? "Saving…" : "💾 Save & Print"}</button>
-              : <><button
-  onClick={() => {
-    const prevTitle = document.title;
-    document.title = savedPatient.mrNumber;
-    window.print();
-    setTimeout(() => { document.title = prevTitle; }, 1000);
-  }}
-  style={btn("white")}
->
-  🖨️ Print Again
-</button></>
-            }
-          </div>
+            {!savedPatient ? (
+  <button onClick={handleSaveAndPrint} disabled={saving} style={btn("white")}>
+    {saving ? "Saving…" : "💾 Save & Print"}
+  </button>
+) : (
+  <>
+    <button
+      onClick={() => {
+        const prevTitle = document.title;
+        document.title = savedPatient.mrNumber;
+        window.print();
+        setTimeout(() => { document.title = prevTitle; }, 1000);
+      }}
+      style={btn("white")}
+    >
+      🖨️ Print Again
+    </button>
+    <button onClick={handleNew} style={{ ...btn("white"), background: "#16a34a", color: "white" }}>
+      + New Patient
+    </button>
+  </>
+)}
+                        </div>
         </div>
         {error && <div className="no-print" style={{ background: "#fee2e2", color: "#dc2626", padding: "12px 24px", fontSize: "14px" }}>{error}</div>}
         {savedPatient && <div className="no-print" style={{ background: "#dcfce7", color: "#166534", padding: "10px 24px", fontSize: "14px" }}>✓ Saved — MR# {savedPatient.mrNumber}</div>}
@@ -573,6 +697,49 @@ const handleSaveAndPrint = async () => {
 
         {/* ── Patient Info ── */}
         <Card title="👤 Patient Information">
+          {/* ── Returning Patient Lookup ── */}
+<div style={{ marginBottom: "18px", padding: "14px", background: "#f0f4fa", borderRadius: "10px", border: "1px solid #c8d8f0" }}>
+  <Label>Returning Patient? Enter Previous MR Number</Label>
+  <div style={{ display: "flex", gap: "8px" }}>
+    <input
+      value={form.returningMrNumber}
+      onChange={(e) => setForm((f) => ({ ...f, returningMrNumber: e.target.value, isReturning: false }))}
+      onKeyDown={(e) => { if (e.key === "Enter") handleMrLookup(); }}
+      placeholder="e.g. 00000042"
+      style={{ ...inputSt, flex: 1 }}
+    />
+    <button
+      onClick={handleMrLookup}
+      disabled={mrLookupLoading || !form.returningMrNumber.trim()}
+      style={{
+        padding: "9px 18px", borderRadius: "7px", border: "none", fontWeight: "600",
+        fontSize: "13px", cursor: mrLookupLoading || !form.returningMrNumber.trim() ? "default" : "pointer",
+        background: mrLookupLoading || !form.returningMrNumber.trim() ? "#9ca3af" : "#1a3a6b",
+        color: "white", whiteSpace: "nowrap",
+      }}
+    >
+      {mrLookupLoading ? "Looking up…" : "🔍 Look Up"}
+    </button>
+    {form.isReturning && (
+      <button
+        onClick={() => setForm((f) => ({ ...f, isReturning: false, returningMrNumber: "", name: "", gender: "Male", ageValue: "", ageUnit: "Years", contact: "", address: "" }))}
+        style={{ padding: "9px 12px", borderRadius: "7px", border: "none", background: "#fee2e2", color: "#dc2626", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
+      >
+        ✕ Clear
+      </button>
+    )}
+  </div>
+  {mrLookupError && (
+    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#dc2626" }}>{mrLookupError}</p>
+  )}
+  {form.isReturning && (
+    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#166534", fontWeight: "600" }}>
+      ✓ Returning patient found — visit will be saved under MR# {form.returningMrNumber}
+    </p>
+  )}
+</div>
+
+{/* existing name/age/gender grid follows unchanged */}
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "14px", marginBottom: "14px" }}>
             <div>
               <Label>Full Name *</Label>
@@ -612,7 +779,7 @@ const handleSaveAndPrint = async () => {
             <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: "10px", alignItems: "end", marginBottom: "10px" }}>
               <div>
                 {i === 0 && <Label>Symptom / Complaint</Label>}
-                <SearchableSelect options={COMPLAINTS} value={c.symptom} onChange={(v) => setComplaintField(i, "symptom", v)} placeholder="Search symptom..." />
+                <SearchableSelect options={[...COMPLAINTS, ...dbComplaints]} value={c.symptom} onChange={(v) => setComplaintField(i, "symptom", v)} placeholder="Search symptom..." />
               </div>
               <div>
                 {i === 0 && <Label>Duration</Label>}
@@ -660,7 +827,7 @@ const handleSaveAndPrint = async () => {
         {/* ── Diagnosis ── */}
         <Card title="🔬 Diagnosis">
 <SearchableSelect
-  options={DIAGNOSES.filter((d) => !form.diagnosis.includes(d))}
+  options={[...DIAGNOSES, ...dbDiagnoses].filter((d) => !form.diagnosis.includes(d))}
   value=""
   onChange={(v) => {
     if (v && !form.diagnosis.includes(v)) toggleItem("diagnosis", v);
@@ -683,7 +850,7 @@ const handleSaveAndPrint = async () => {
         {/* ── Investigation ── */}
         <Card title="🧪 Investigation / Tests">
 <SearchableSelect
-  options={INVESTIGATIONS.filter((inv) => !form.investigation.includes(inv))}
+  options={[...INVESTIGATIONS, ...dbInvestigations].filter((inv) => !form.investigation.includes(inv))}
   value=""
   onChange={(v) => {
     if (v && !form.investigation.includes(v)) toggleItem("investigation", v);

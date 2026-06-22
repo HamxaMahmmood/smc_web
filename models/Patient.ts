@@ -15,6 +15,7 @@ export interface IMedication {
 
 
 // IPatient interface — add clinic
+// IPatient interface — add contact and address
 export interface IPatient extends Document {
   name: string;
   gender: "Male" | "Female" | "Other";
@@ -22,6 +23,8 @@ export interface IPatient extends Document {
   ageUnit: "Years" | "Months";
   clinic: string;
   mrNumber: string;
+  contact: string;
+  address: string;
   complaint: string;
   clinicalExamination: string;
   diagnosis: string;
@@ -44,6 +47,7 @@ const MedicationSchema = new Schema<IMedication>({
   instructionUrdu: { type: String, default: "" },
 });
 
+// PatientSchema — remove unique: true from mrNumber, add contact + address
 const PatientSchema = new Schema<IPatient>(
   {
     name: { type: String, required: true, trim: true },
@@ -51,7 +55,9 @@ const PatientSchema = new Schema<IPatient>(
     age: { type: Number, required: true },
     ageUnit: { type: String, enum: ["Years", "Months"], default: "Years" },
     clinic: { type: String, enum: ["islamabad", "siddique"], default: "islamabad" },
-    mrNumber: { type: String, required: true, unique: true, trim: true },
+    mrNumber: { type: String, required: true, trim: true },  // unique removed
+    contact: { type: String, default: "" },
+    address: { type: String, default: "" },
     complaint: { type: String, default: "" },
     clinicalExamination: { type: String, default: "" },
     diagnosis: { type: String, default: "" },
