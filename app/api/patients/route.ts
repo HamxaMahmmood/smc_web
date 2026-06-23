@@ -62,6 +62,9 @@ export async function POST(req: NextRequest) {
       clinic:              ["islamabad", "siddique"].includes(body.clinic) ? body.clinic : "islamabad",
       contact:             (body.contact             || "").trim().slice(0, 100),
       address:             (body.address             || "").trim().slice(0, 500),
+      weight:              body.weight !== undefined && body.weight !== "" && body.weight !== null
+                        ? Number(body.weight)
+                        : undefined,
       complaint:           (body.complaint           || "").trim().slice(0, 2000),
       clinicalExamination: (body.clinicalExamination || "").trim().slice(0, 5000),
       diagnosis:           (body.diagnosis           || "").trim().slice(0, 2000),

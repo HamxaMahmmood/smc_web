@@ -71,7 +71,22 @@ export default function AddMedicinePage() {
       setLoading(false);
     }
   };
-
+const handleDeleteBrand = async (generic: string, brand: string) => {
+  setError("");
+  setSuccess("");
+  try {
+    const res = await fetch(
+      `/api/medicines?generic=${encodeURIComponent(generic)}&brand=${encodeURIComponent(brand)}`,
+      { method: "DELETE" }
+    );
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || "Failed to delete");
+    setSuccess(`Removed "${brand}" from ${generic}.`);
+    await loadMedicines();
+  } catch (e: unknown) {
+    setError(e instanceof Error ? e.message : "Something went wrong");
+  }
+};
   return (
     <div style={{ minHeight: "100vh", background: "#f0f4fa" }}>
       <div style={{ background: "#1a3a6b", padding: "14px 24px", display: "flex", alignItems: "center", gap: "16px" }}>
@@ -146,9 +161,38 @@ export default function AddMedicinePage() {
             {medicines.map((m) => (
               <div key={m.generic} style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "10px 14px" }}>
                 <div style={{ fontWeight: 700, fontSize: "13.5px", color: "#1a1a2e" }}>{m.generic}</div>
-                <div style={{ fontSize: "12.5px", color: "#6b7280", marginTop: "3px" }}>
-                  {m.brands.length > 0 ? m.brands.join(", ") : "No brands yet"}
-                </div>
+                <div style={{ marginTop: "5px" }}>
+  {m.brands.length > 0 ? (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+      {m.brands.map((brand) => (
+        <span
+          key={brand}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: "4px",
+            background: "#f0f4fa", border: "1px solid #c8d8f0",
+            padding: "2px 6px 2px 10px", borderRadius: "12px",
+            fontSize: "12px", color: "#374151",
+          }}
+        >
+          {brand}
+          <button
+            onClick={() => handleDeleteBrand(m.generic, brand)}
+            title={`Remove ${brand}`}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "#dc2626", fontSize: "15px", fontWeight: "700",
+              lineHeight: 1, padding: "0 2px",
+            }}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+  ) : (
+    <span style={{ fontSize: "12.5px", color: "#9ca3af" }}>No brands yet</span>
+  )}
+</div>
               </div>
             ))}
           </div>

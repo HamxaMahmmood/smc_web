@@ -30,6 +30,7 @@ interface PrintSlipProps {
     clinic?: string;
     contact?: string;
     address?: string;
+    weight?: number | string;
     followUpDate?: string;
   };
 }
@@ -134,7 +135,10 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         flexWrap: "wrap", gap: "3mm", alignItems: "center", justifyContent: "space-between",
       }}>
         <span style={{ fontWeight: "bold", fontSize: "11pt" }}>{patient.name}</span>
-        <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}>{patient.gender} | {patient.age} {patient.ageUnit} old</span>
+        <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}>
+          {patient.gender} | {patient.age} {patient.ageUnit} old
+          {patient.weight ? ` | Wt: ${patient.weight} kg` : ""}
+        </span>
         {patient.contact && <span style={{ fontSize: "9.5pt", fontFamily: "Times New Roman" }}>📞 {patient.contact}</span>}
         {patient.address && <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#444" }}>📍 {patient.address}</span>}
         <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}><strong>MR#:</strong> {patient.mrNumber}</span>

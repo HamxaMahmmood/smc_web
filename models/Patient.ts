@@ -25,6 +25,7 @@ export interface IPatient extends Document {
   mrNumber: string;
   contact: string;
   address: string;
+  weight?: number;
   complaint: string;
   clinicalExamination: string;
   diagnosis: string;
@@ -58,6 +59,7 @@ const PatientSchema = new Schema<IPatient>(
     mrNumber: { type: String, required: true, trim: true },  // unique removed
     contact: { type: String, default: "" },
     address: { type: String, default: "" },
+    weight: { type: Number, default: null },
     complaint: { type: String, default: "" },
     clinicalExamination: { type: String, default: "" },
     diagnosis: { type: String, default: "" },

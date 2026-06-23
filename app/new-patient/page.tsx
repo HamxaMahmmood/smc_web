@@ -46,7 +46,7 @@ const DURATIONS = [
 ];
 
 const GPE_DEFAULT = `Anthropometery: Weight: ______ kg, Height/length: ______ cm, BMI: ______ kg/m², Head Circumference: ______ cm, Mid-Upper Arm Circumference (MUAC): ______ cm.\n
- Vital Signs: Temperature: ______ °C, Pulse Rate: ______ bpm, Respiratory Rate: ______ breaths/min, Blood Pressure: ______ mmHg.`;
+ Vital Signs: Temperature: ______ °F, Pulse Rate: ______ bpm, Respiratory Rate: ______ breaths/min, Blood Pressure: ______ mmHg.`;
 
 const SYSTEMIC_DEFAULT = `Respiratory, cardiovascular, abdominal, and neurological examinations are unremarkable. No focal neurological deficit. No organomegaly. No evidence of respiratory distress or cardiac failure.`;
 
@@ -324,6 +324,7 @@ interface PatientForm {
   diagnosis: string[];
   investigation: string[];
   medications: Medication[];
+  weight: string;
   followUpDate: string;
   isReturning: boolean;
   returningMrNumber: string;
@@ -343,6 +344,7 @@ const initialForm: PatientForm = {
   gpe: GPE_DEFAULT, systemic: SYSTEMIC_DEFAULT,
   diagnosis: [], investigation: [],
   medications: [emptyMed()],
+  weight: "",
   followUpDate: "",
   isReturning: false,
   returningMrNumber: "",
@@ -455,8 +457,10 @@ const setMedGeneric = (i: number, val: string) => {
   ].filter(Boolean).join("\n\n");
 
   const buildPrintPatient = (mrNumber = "PREVIEW", visitDate: Date | string = new Date()) => ({
+    mrnumber: mrNumber,
     name: form.name,
     gender: form.gender,
+    weight: form.weight,
     age: form.ageValue,
      ageUnit: form.ageUnit,
     clinic: form.clinic,
@@ -577,6 +581,7 @@ const handleSaveAndPrint = async () => {
         clinic: form.clinic,
         contact: form.contact,
         address: form.address,
+        weight: form.weight ? Number(form.weight) : undefined,
         ...(form.isReturning && { mrNumber: form.returningMrNumber.trim() }),
         complaint: complaintsText, clinicalExamination: clinicalExamText,
         diagnosis: form.diagnosis.join(", "), investigation: form.investigation.join(", "),
@@ -761,16 +766,26 @@ const handleSaveAndPrint = async () => {
               </select>
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "14px" }}>
-            <div>
-              <Label>Contact Number</Label>
-              <input value={form.contact} onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))} placeholder="e.g. 0301-1234567" style={inputSt} />
-            </div>
-            <div>
-              <Label>Address</Label>
-              <input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="e.g. House 5, Street 3, F-7/2 Islamabad" style={inputSt} />
-            </div>
-          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "14px" }}>
+  <div>
+    <Label>Contact Number</Label>
+    <input value={form.contact} onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))} placeholder="e.g. 0301-1234567" style={inputSt} />
+  </div>
+  <div>
+    <Label>Weight (kg)</Label>
+    <input
+      type="number" min="0" step="0.1"
+      value={form.weight}
+      onChange={(e) => setForm((f) => ({ ...f, weight: e.target.value }))}
+      placeholder="e.g. 14.5"
+      style={inputSt}
+    />
+  </div>
+  <div>
+    <Label>Address</Label>
+    <input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="e.g. House 5, Street 3, F-7/2 Islamabad" style={inputSt} />
+  </div>
+</div>
         </Card>
 
         {/* ── Complaints ── */}
@@ -801,7 +816,10 @@ const handleSaveAndPrint = async () => {
           <div style={{ marginBottom: "16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
               <span style={{ display: "inline-block", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", background: "#e8f0fb", color: "#1a3a6b" }}>GPE</span>
-              <button onClick={() => setForm((f) => ({ ...f, gpe: GPE_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
+              <div style={{ display: "flex", gap: "6px" }}>
+  <button onClick={() => setForm((f) => ({ ...f, gpe: GPE_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
+  <button onClick={() => setForm((f) => ({ ...f, gpe: "" }))} style={{ ...resetBtn, borderColor: "#fca5a5", color: "#dc2626" }}>✕ Clear</button>
+</div>
             </div>
             <textarea
               value={form.gpe}
@@ -813,7 +831,10 @@ const handleSaveAndPrint = async () => {
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
               <span style={{ display: "inline-block", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", background: "#f5f0fa", color: "#534AB7" }}>Systemic</span>
-              <button onClick={() => setForm((f) => ({ ...f, systemic: SYSTEMIC_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
+              <div style={{ display: "flex", gap: "6px" }}>
+  <button onClick={() => setForm((f) => ({ ...f, systemic: SYSTEMIC_DEFAULT }))} style={resetBtn}>↺ Reset to default</button>
+  <button onClick={() => setForm((f) => ({ ...f, systemic: "" }))} style={{ ...resetBtn, borderColor: "#fca5a5", color: "#dc2626" }}>✕ Clear</button>
+</div>
             </div>
             <textarea
               value={form.systemic}
