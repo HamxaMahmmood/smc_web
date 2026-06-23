@@ -112,10 +112,10 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
 
         <div style={{ borderTop: "1px solid #ccc", marginTop: "4mm", paddingTop: "3mm", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ fontWeight: "bold", fontSize: "10pt", margin: 0, color: "#1a3a6b" }}>
+            <p style={{ fontWeight: "bold",fontFamily: "Times New Roman", fontSize: "10pt", margin: 0, color: "#1a3a6b" }}>
               {clinic.name}
             </p>
-            <p style={{ fontSize: "8.5pt", color: "#555", margin: "1mm 0 0" }}>
+            <p style={{ fontSize: "8.5pt",fontFamily: "Times New Roman", color: "#555", margin: "1mm 0 0" }}>
               {clinic.detail}
             </p>
             <p>
@@ -143,26 +143,55 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         {patient.contact && <span style={{ fontSize: "9.5pt", fontFamily: "Times New Roman" }}>📞 {patient.contact}</span>}
         {patient.address && <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#444" }}>📍 {patient.address}</span>}
         <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}><strong>MR#:</strong> {patient.mrNumber}</span>
-        <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#555" }}>{dateStr} — {timeStr}</span>
+        <span style={{ fontSize: "9pt", fontFamily: "Times New Roman", color: "#555" }}><strong>Date & time: </strong>{dateStr} — {timeStr}</span>
       </div>
 
-      {/* ── Complaint (numbered) ── */}
-      {complaintLines.length > 0 && (
-        <div style={{ marginBottom: "4mm" }}>
-          <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10.5pt" }}>Complaint:</span>
-          <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
-            {complaintLines.length === 1 ? (
-              <span style={{ fontSize: "10pt" }}> {complaintLines[0]}</span>
-            ) : (
-              complaintLines.map((line, i) => (
-                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
-                  {i + 1}. {line}
-                </div>
-              ))
-            )}
+     {/* ── Complaint | Diagnosis | Investigation — 3-col row ── */}
+      <div style={{ display: "flex", gap: "4mm", marginBottom: "4mm", alignItems: "flex-start" }}>
+
+        {/* Complaint */}
+        {complaintLines.length > 0 && (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt", borderBottom: "1px solid #c8d8f0", paddingBottom: "1mm", marginBottom: "1.5mm" }}>
+              Complaint:
+            </div>
+            {complaintLines.map((line, i) => (
+              <div key={i} style={{ fontSize: "9.5pt", marginBottom: "0.5mm" }}>
+                {complaintLines.length === 1 ? line : `${i + 1}. ${line}`}
+              </div>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Diagnosis */}
+        {patient.diagnosis && (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt", borderBottom: "1px solid #c8d8f0", paddingBottom: "1mm", marginBottom: "1.5mm" }}>
+              Diagnosis:
+            </div>
+            {patient.diagnosis.split(",").map((d) => d.trim()).filter(Boolean).map((d, i, arr) => (
+              <div key={i} style={{ fontSize: "9.5pt", marginBottom: "0.5mm" }}>
+                {arr.length === 1 ? d : `${i + 1}. ${d}`}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Investigation */}
+        {patient.investigation && (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt", borderBottom: "1px solid #c8d8f0", paddingBottom: "1mm", marginBottom: "1.5mm" }}>
+              Investigation Advised:
+            </div>
+            {patient.investigation.split(",").map((inv) => inv.trim()).filter(Boolean).map((inv, i, arr) => (
+              <div key={i} style={{ fontSize: "9.5pt", marginBottom: "0.5mm" }}>
+                {arr.length === 1 ? inv : `${i + 1}. ${inv}`}
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div>
 
       {/* ── Clinical Examination ── */}
       {(gpeText || systemicText) && (
@@ -184,46 +213,6 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
             }}>
               <span style={{ fontWeight: "bold", color: "#534AB7", fontSize: "9pt" }}>Systemic: </span>
               <span style={{ fontSize: "9.5pt" }}>{systemicText}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-
-
-
-      
-    {/* ── Diagnosis ── */}
-      {patient.diagnosis && (
-        <div style={{ marginBottom: "4mm" }}>
-          <span style={{ fontWeight: "bold", color: "#1a3a6b" }}>Diagnosis:</span>
-          {patient.diagnosis.split(",").map((d, i) => d.trim()).filter(Boolean).length === 1 ? (
-            <span style={{ fontSize: "10pt" }}> {patient.diagnosis}</span>
-          ) : (
-            <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
-              {patient.diagnosis.split(",").map((d, i) => d.trim()).filter(Boolean).map((d, i) => (
-                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
-                  {i + 1}. {d}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── Investigation ── */}
-      {patient.investigation && (
-        <div style={{ marginBottom: "4mm" }}>
-          <span style={{ fontWeight: "bold", color: "#1a3a6b" }}>Investigation Advised:</span>
-          {patient.investigation.split(",").map((inv, i) => inv.trim()).filter(Boolean).length === 1 ? (
-            <span style={{ fontSize: "10pt" }}> {patient.investigation}</span>
-          ) : (
-            <div style={{ marginTop: "1.5mm", paddingLeft: "2mm" }}>
-              {patient.investigation.split(",").map((inv) => inv.trim()).filter(Boolean).map((inv, i) => (
-                <div key={i} style={{ fontSize: "10pt", marginBottom: "0.5mm" }}>
-                  {i + 1}. {inv}
-                </div>
-              ))}
             </div>
           )}
         </div>
@@ -264,7 +253,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
         <div style={{ marginTop: "6mm", display: "inline-flex", alignItems: "center", gap: "6mm", border: "1px solid #1a3a6b", borderRadius: "3mm", padding: "2.5mm 5mm" }}>
           <span style={{ fontSize: "10pt", color: "#1a3a6b" }}>📅</span>
           <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt" }}>Follow-up visit: (دوبارہ معائنہ کروانے کی تاریخ)</span>
-          <span style={{ fontSize: "10pt" }}>{followUpDisplay}</span>
+          <span style={{ fontSize: "10pt", fontFamily: "Times New Roman" }}>{followUpDisplay}</span>
         </div>
       )}
       {/* ── Home Instructions ── */}
@@ -310,15 +299,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
       )}
 
       {/* ── Footer ── */}
-      <div style={{ marginTop: "12mm", borderTop: "1px solid #ccc", paddingTop: "4mm", display: "flex", justifyContent: "space-between", fontSize: "9pt", color: "#777" }}>
-        <span>Prof. Dr. Zahid Mahmood</span>
-        <span>Follow-up as advised by doctor</span>
-        <div style={{ textAlign: "right" }}>
-          <p style={{ margin: 0, borderTop: "1px solid #000", paddingTop: "2mm", marginTop: "16mm", width: "40mm", fontSize: "8pt" }}>
-            Doctor&apos;s Signature
-          </p>
-        </div>
-      </div>
+      
     </div>
   );
 }
