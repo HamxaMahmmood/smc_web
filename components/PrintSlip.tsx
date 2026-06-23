@@ -31,6 +31,7 @@ interface PrintSlipProps {
     contact?: string;
     address?: string;
     weight?: number | string;
+    homeInstructions?: { title: string; lines: string[] }[];
     followUpDate?: string;
   };
 }
@@ -264,6 +265,47 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
           <span style={{ fontSize: "10pt", color: "#1a3a6b" }}>📅</span>
           <span style={{ fontWeight: "bold", color: "#1a3a6b", fontSize: "10pt" }}>Follow-up visit: (دوبارہ معائنہ کروانے کی تاریخ)</span>
           <span style={{ fontSize: "10pt" }}>{followUpDisplay}</span>
+        </div>
+      )}
+      {/* ── Home Instructions ── */}
+      {patient.homeInstructions && patient.homeInstructions.length > 0 && (
+        <div style={{ marginTop: "6mm", borderTop: "2px dashed #c8d8f0", paddingTop: "4mm" }}>
+          <p style={{
+            fontWeight: "bold", fontSize: "10.5pt", color: "#1a3a6b",
+            marginBottom: "3mm", direction: "rtl", textAlign: "right",
+            fontFamily: "'Noto Nastaliq Urdu', serif",
+          }}>
+            بچوں کے والدین کے لیے اہم ہدایات
+          </p>
+          <div style={{ direction: "rtl", columns: patient.homeInstructions.length > 3 ? 2 : 1, columnGap: "6mm" }}>
+            {patient.homeInstructions.map((section, i) => (
+              <div key={i} style={{ marginBottom: "3mm", breakInside: "avoid" }}>
+                <div style={{
+                  fontWeight: "bold", fontSize: "9.5pt", color: "#1a3a6b",
+                  marginBottom: "1mm", fontFamily: "'Noto Nastaliq Urdu', serif",
+                }}>
+                  {section.title}
+                </div>
+                <ul style={{ margin: 0, paddingRight: "4mm", paddingLeft: 0 }}>
+                  {section.lines.map((line, j) => (
+                    <li key={j} style={{
+                      fontSize: "8.5pt", marginBottom: "0.5mm",
+                      fontFamily: "'Noto Nastaliq Urdu', serif",
+                    }}>
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p style={{
+            fontSize: "8pt", color: "#555", marginTop: "2mm",
+            direction: "rtl", textAlign: "right",
+            fontFamily: "'Noto Nastaliq Urdu', serif",
+          }}>
+            ⚠️ نوٹ: کسی بھی ہنگامی صورت حال میں قریبی ایمرجنسی یا اپنے معالج سے فوری رابطہ کریں۔
+          </p>
         </div>
       )}
 

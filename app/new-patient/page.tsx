@@ -262,6 +262,88 @@ const DURATIONS_MED: { en: string; ur: string }[] = [
   { en: "Single dose",       ur: "صرف ایک بار" },
 ];
 
+
+const HOME_INSTRUCTIONS = [
+  {
+    id: "medicine",
+    title: "۱. دوا کے بارے میں",
+    lines: [
+      "دوا ڈاکٹر کی ہدایت کے مطابق مقررہ مقدار اور وقت پر دیں۔",
+      "دوا خود سے بند یا تبدیل نہ کریں۔",
+      "کھانسی، بخار یا اینٹی بایوٹک ادویات خود سے شروع نہ کریں۔",
+      "دوا بچوں کی پہنچ سے دور رکھیں۔",
+    ],
+  },
+  {
+    id: "fever",
+    title: "۲. بخار کی صورت میں",
+    lines: [
+      "بچے کو ہلکے کپڑے پہنائیں۔",
+      "پانی، دودھ یا ORS مناسب مقدار میں دیں۔",
+      "پیراسٹامول صرف تجویز کردہ خوراک میں دیں۔",
+      "اگر بخار 3 دن سے زیادہ رہے تو فوراً معائنہ کروائیں۔",
+    ],
+  },
+  {
+    id: "emergency",
+    title: "۳. فوری طور پر ڈاکٹر سے رابطہ کریں اگر",
+    lines: [
+      "بچے کو سانس لینے میں دشواری ہو۔",
+      "بچہ پانی یا دودھ نہ پی رہا ہو۔",
+      "مسلسل قے ہو رہی ہو۔",
+      "دورہ (Fits) پڑ جائے۔",
+      "بچہ غیر معمولی طور پر غنودہ یا بے ہوش لگے۔",
+      "شدید پانی کی کمی کی علامات ہوں۔",
+    ],
+  },
+  {
+    id: "diarrhea",
+    title: "۴. اسہال (دست) کی صورت میں",
+    lines: [
+      "ORS بار بار دیں۔",
+      "ماں کا دودھ جاری رکھیں۔",
+      "زنک ڈاکٹر کے مشورے کے مطابق دیں۔",
+      "کولڈ ڈرنکس اور غیر ضروری ادویات سے پرہیز کریں۔",
+    ],
+  },
+  {
+    id: "cough",
+    title: "۵. کھانسی اور نزلہ",
+    lines: [
+      "بچے کو مناسب مقدار میں پانی پلائیں۔",
+      "ایک سال سے بڑے بچوں کو شہد دیا جا سکتا ہے۔",
+      "اینٹی بایوٹک صرف ڈاکٹر کے مشورے سے استعمال کریں۔",
+    ],
+  },
+  {
+    id: "diet",
+    title: "۶. غذائی ہدایات",
+    lines: [
+      "۶ ماہ تک صرف ماں کا دودھ دیں۔",
+      "۶ ماہ کے بعد دودھ کے ساتھ مناسب گھر کی غذا شروع کریں۔",
+      "جنک فوڈ، کولڈ ڈرنکس اور چپس سے پرہیز کریں۔",
+      "پھل، سبزیاں اور پروٹین والی غذا استعمال کروائیں۔",
+    ],
+  },
+  {
+    id: "vaccination",
+    title: "۷. ویکسینیشن",
+    lines: [
+      "حفاظتی ٹیکے مقررہ وقت پر لگوائیں۔",
+      "ویکسین کارڈ ہر وزٹ پر ساتھ لائیں۔",
+      "کوئی ویکسین رہ جائے تو ڈاکٹر سے مشورہ کریں۔",
+    ],
+  },
+  {
+    id: "followup",
+    title: "۸. فالو اپ",
+    lines: [
+      "اگلی ملاقات مقررہ تاریخ پر ضرور کروائیں۔",
+      "تمام لیبارٹری رپورٹس اور سابقہ نسخے ساتھ لائیں۔",
+    ],
+  },
+];
+
 // ── Instruction ──
 const INSTRUCTIONS: { en: string; ur: string }[] = [
 
@@ -332,6 +414,7 @@ interface PatientForm {
   investigation: string[];
   medications: Medication[];
   weight: string;
+  homeInstructions: string[];
   followUpDate: string;
   isReturning: boolean;
   returningMrNumber: string;
@@ -352,6 +435,7 @@ const initialForm: PatientForm = {
   diagnosis: [], investigation: [],
   medications: [emptyMed()],
   weight: "",
+  homeInstructions: [],
   followUpDate: "",
   isReturning: false,
   returningMrNumber: "",
@@ -478,6 +562,9 @@ const setMedGeneric = (i: number, val: string) => {
     diagnosis: form.diagnosis.join(", "),
     investigation: form.investigation.join(", "),
     followUpDate: form.followUpDate,
+    homeInstructions: HOME_INSTRUCTIONS
+      .filter((h) => form.homeInstructions.includes(h.id))
+      .map((h) => ({ title: h.title, lines: h.lines })),
     medications: form.medications.map((m) => ({
       drug: [m.brand, m.generic && `(${m.generic})`, m.package && `— ${m.package}`].filter(Boolean).join(" "),
       frequency: m.frequency, dosage: m.dosage, duration: m.duration, instruction: m.instruction,
@@ -1001,7 +1088,46 @@ const handleSaveAndPrint = async () => {
             )}
           </div>
         </Card>
-
+            {/* ── Home Instructions ── */}
+        <Card title="📋 گھریلو ہدایات — Home Instructions">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            {HOME_INSTRUCTIONS.map((h) => {
+              const selected = form.homeInstructions.includes(h.id);
+              return (
+                <label
+                  key={h.id}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "10px",
+                    padding: "10px 14px", borderRadius: "8px", cursor: "pointer",
+                    border: `1.5px solid ${selected ? "#1a3a6b" : "#c8d8f0"}`,
+                    background: selected ? "#e8f0fb" : "white",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() =>
+                      setForm((f) => ({
+                        ...f,
+                        homeInstructions: selected
+                          ? f.homeInstructions.filter((id) => id !== h.id)
+                          : [...f.homeInstructions, h.id],
+                      }))
+                    }
+                  />
+                  <span style={{
+                    fontSize: "13px", fontFamily: "serif", direction: "rtl",
+                    color: selected ? "#1a3a6b" : "#374151",
+                    fontWeight: selected ? "700" : "400",
+                  }}>
+                    {h.title}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </Card>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
           <Link href="/" style={{ textDecoration: "none" }}><button style={btn("light")}>Cancel</button></Link>
           <button onClick={handlePreview} style={btn("navy")}>Preview & Print →</button>
