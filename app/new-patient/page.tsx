@@ -272,6 +272,13 @@ const INSTRUCTIONS: { en: string; ur: string }[] = [
   { en: "Nebulization",           ur: "دوا کی بھاپ دیں" },
   
   { en: "Eye drops",           ur: "آنکھ میں ڈالیں" },
+
+    { en: "Wash the wound",           ur: "زخم کو دھوئیں" },
+    { en: "Wash the head",           ur: "سر کو دھوئیں" },
+    { en: "Apply on wound",           ur: "زخم پر لگائیں" },
+
+
+
   { en: "Apply on skin",           ur: "جلد پر لگائیں" },
   { en: "Before meal",           ur: "کھانے سے پہلے" },
   { en: "After meal",            ur: "کھانے کے بعد" },
@@ -457,12 +464,12 @@ const setMedGeneric = (i: number, val: string) => {
   ].filter(Boolean).join("\n\n");
 
   const buildPrintPatient = (mrNumber = "PREVIEW", visitDate: Date | string = new Date()) => ({
-    mrnumber: mrNumber,
+    mrNumber,
     name: form.name,
     gender: form.gender,
     weight: form.weight,
     age: form.ageValue,
-     ageUnit: form.ageUnit,
+    ageUnit: form.ageUnit,
     clinic: form.clinic,
     contact: form.contact,
     address: form.address,
@@ -767,11 +774,7 @@ const handleSaveAndPrint = async () => {
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "14px" }}>
-  <div>
-    <Label>Contact Number</Label>
-    <input value={form.contact} onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))} placeholder="e.g. 0301-1234567" style={inputSt} />
-  </div>
-  <div>
+             <div>
     <Label>Weight (kg)</Label>
     <input
       type="number" min="0" step="0.1"
@@ -780,7 +783,12 @@ const handleSaveAndPrint = async () => {
       placeholder="e.g. 14.5"
       style={inputSt}
     />
+  </div>  
+  <div>
+    <Label>Contact Number</Label>
+    <input value={form.contact} onChange={(e) => setForm((f) => ({ ...f, contact: e.target.value }))} placeholder="e.g. 0301-1234567" style={inputSt} />
   </div>
+ 
   <div>
     <Label>Address</Label>
     <input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="e.g. House 5, Street 3, F-7/2 Islamabad" style={inputSt} />
