@@ -130,6 +130,7 @@ const FREQUENCIES: { en: string; ur: string }[] = [
   { en: "Once a day (OD)",        ur: "دن میں ایک بار" },
   { en: "Twice a day (BD)",       ur: "دن میں دو بار" },
   { en: "Three times a day (TDS)",ur: "دن میں تین بار" },
+  { en: "Stat dose", ur: "صرف ایک ہی دفعہ" },
   { en: "Four times a day (QDS)", ur: "دن میں چار بار" },
   { en: "Every 6 hours",          ur: "ہر ۶ گھنٹے بعد" },
   { en: "Every 8 hours",          ur: "ہر ۸ گھنٹے بعد" },
@@ -139,13 +140,17 @@ const FREQUENCIES: { en: string; ur: string }[] = [
   { en: "In the morning",         ur: "صبح کے وقت" },
   { en: "Alternate days",         ur: "ایک دن چھوڑ کر" },
   { en: "Weekly",                 ur: "ہفتے میں ایک بار" },
-  { en: "Single dose",       ur: "صرف ایک بار" },
+  { en: "Monthly", ur: "مہینے میں ایک بار" },
+
 ];
 
 // ── Dosage ──
-// ── Dosage ──
 const DOSAGE_AMOUNTS: { en: string; ur: string }[] = [
-  { en: "½",   ur: "آدھا" },
+  { en: "1/4",   ur: "ایک چوتھائی" },
+
+  { en: "1/3",   ur: "ایک تہائی" },
+
+  { en: "1/2",   ur: "آدھا" },
   { en: "1",   ur: "۱" },
   { en: "1.5", ur: "۱.۵" },
   { en: "2",   ur: "۲" },
@@ -166,6 +171,8 @@ const DOSAGE_UNITS: { en: string; ur: string }[] = [
   { en: "drop",        ur: "قطرہ" },
   { en: "ml",          ur: "ملی لیٹر" },
   { en: "tablet",      ur: "گولی" },
+  { en: "unit",      ur: "یونٹ" },
+
   { en: "injection",      ur: "انجکشن" },
   { en: "capsule",     ur: "کیپسول" },
   { en: "puff",        ur: "پف" },
@@ -175,6 +182,7 @@ const DOSAGE_UNITS: { en: string; ur: string }[] = [
 
 // ── Duration ──
 const DURATIONS_MED: { en: string; ur: string }[] = [
+  { en: "Single dose",       ur: "صرف ایک بار" },
   { en: "1 days",            ur: "۱ دن" },
   { en: "2 days",            ur: "۲ دن" },
   { en: "3 days",            ur: "۳ دن" },
@@ -189,7 +197,6 @@ const DURATIONS_MED: { en: string; ur: string }[] = [
   { en: "3 months",          ur: "تین مہینے" },
   { en: "Ongoing / chronic", ur: "مسلسل / دائمی" },
   { en: "As needed (PRN)",   ur: "ضرورت پڑنے پر" },
-  { en: "Single dose",       ur: "صرف ایک بار" },
 ];
 
 
@@ -272,27 +279,52 @@ const HOME_INSTRUCTIONS = [
       "تمام لیبارٹری رپورٹس اور سابقہ نسخے ساتھ لائیں۔",
     ],
   },
+  {
+  id: "follow_up_for_neonates",
+  title: "فالو اَپ ہدایات برائے نوزائیدہ",
+  lines: [
+    "بچے کو صرف ماں کا دودھ پلائیں۔",
+    "دن اور رات میں ہر 2–3 گھنٹے بعد یا بچے کی طلب پر دودھ پلائیں۔",
+    "چھ ماہ تک پانی، شہد، گھٹی یا کوئی اور غذا نہ دیں۔",
+    "روزانہ کم از کم 6 بار پیشاب آنا چاہیے۔",
+    "پاخانے کی تعداد مختلف ہو سکتی ہے، اگر بچہ دودھ اچھی طرح پی رہا ہے تو فکر کی ضرورت نہیں۔",
+    "ناف کو صاف اور خشک رکھیں۔",
+    "ناف پر کوئی دوا، تیل یا پاؤڈر نہ لگائیں۔",
+    "اگر ناف سے پیپ، بدبو یا خون آئے تو فوراً ڈاکٹر سے رابطہ کریں۔",
+    "موسم کے مطابق کپڑے پہنائیں۔",
+    "بچے کا سر ڈھانپ کر رکھیں، خاص طور پر سردی میں۔",
+    "بچے کو دھوئیں اور سگریٹ کے دھوئیں سے دور رکھیں۔",
+    "پیدائش کے وقت لگنے والے ٹیکے (BCG، OPV، Hepatitis B) یقینی بنائیں۔",
+    "اگلے حفاظتی ٹیکوں کی تاریخ یاد رکھیں اور وقت پر ویکسین لگوائیں۔",
+  ],
+},
 ];
 
+const ROUTES: { en: string; ur: string }[] = [
+  { en: "By mouth (oral)",     ur: "منہ کے ذریعے" },
+  { en: "Sublingual",          ur: "زبان کے نیچے" },
+  { en: "Per rectum",          ur: "مقعد کے ذریعے" },
+  { en: "Intravenous (IV)",    ur: "رگ میں" },
+  { en: "Intramuscular (IM)",  ur: "پٹھے میں" },
+  { en: "Subcutaneous (SC)",   ur: "جلد کے نیچے" },
+  { en: "Intradermal",         ur: "جلد کے اندر" },
+  { en: "Inhalation",          ur: "سانس کے ذریعے" },
+  { en: "Nebulization",           ur: "دوا کی بھاپ دیں" },
+  { en: "Topical",             ur: "جلد پر لگانے کے لیے" },
+  { en: "Topical Eye drops",           ur: "آنکھ میں ڈالیں" },
+  { en: "Topical Ear drops",           ur: "کان میں ڈالیں" },
+  { en: "Intranasal",       ur: "ناک میں ڈالیں" },
+
+];
 // ── Instruction ──
 const INSTRUCTIONS: { en: string; ur: string }[] = [
 
-  { en: "Ear drops",           ur: "کان میں ڈالیں" },
-  { en: "Nose drops",           ur: "ناک میں ڈالیں" },
   { en: "Apply on all body below neck", ur:"گردن سے نیچے ساری جلد پر لگائیں" },
-
-  { en: "Nebulization",           ur: "دوا کی بھاپ دیں" },
-  
-  { en: "Eye drops",           ur: "آنکھ میں ڈالیں" },
-
-    { en: "Wash the wound",           ur: "زخم کو دھوئیں" },
-    { en: "Wash the head",           ur: "سر کو دھوئیں" },
-    { en: "Apply on wound",           ur: "زخم پر لگائیں" },
-
-
-
+  { en: "Apply on umbilicus", ur: "ناف پر لگائیں" },
+  { en: "Wash the wound",           ur: "زخم کو دھوئیں" },
+  { en: "Wash the head",           ur: "سر کو دھوئیں" },
+  { en: "Apply on wound",           ur: "زخم پر لگائیں" },
   { en: "Apply on skin",           ur: "جلد پر لگائیں" },
-  { en: "Intramuscular injection",     ur: "پٹھے میں انجکشن  لگائیں  " },
   { en: "Before meal",           ur: "کھانے سے پہلے" },
   { en: "After meal",            ur: "کھانے کے بعد" },
   { en: "With meal",             ur: "کھانے کے ساتھ" },
@@ -329,6 +361,7 @@ interface Medication {
   generic: string; brand: string; package: string;
   dosageAmount: string; dosageUnit: string;
   frequency: string; dosage: string; duration: string; instruction: string;
+  route: string; routeUrdu: string;
   frequencyUrdu: string; dosageUrdu: string; durationUrdu: string; instructionUrdu: string;
 }
 interface PatientForm {
@@ -356,7 +389,7 @@ const emptyComplaint = (): ComplaintEntry => ({ symptom: "", duration: "" });
 const emptyMed = (): Medication => ({
   generic: "", brand: "", package: "",
   dosageAmount: "", dosageUnit: "",
-  frequency: "", dosage: "", duration: "", instruction: "",
+  frequency: "", dosage: "", duration: "", instruction: "", route: "", routeUrdu: "",
   frequencyUrdu: "", dosageUrdu: "", durationUrdu: "", instructionUrdu: "",
 });
 const initialForm: PatientForm = {
@@ -522,6 +555,7 @@ const handleDosageChange = (i: number, field: "dosageAmount" | "dosageUnit", val
     medications: form.medications.map((m) => ({
       drug: [m.brand, m.generic && `(${m.generic})`, m.package && `— ${m.package}`].filter(Boolean).join(" "),
       frequency: m.frequency, dosage: m.dosage, duration: m.duration, instruction: m.instruction,
+       route: m.route, routeUrdu: m.routeUrdu,
       frequencyUrdu: m.frequencyUrdu, dosageUrdu: m.dosageUrdu,
       durationUrdu: m.durationUrdu, instructionUrdu: m.instructionUrdu,
     })),
@@ -958,7 +992,7 @@ const handleSaveAndPrint = async () => {
                 </div>
               {/* English */}
 <div style={{ marginBottom: "6px" }}><span style={langBadge("en")}>English</span></div>
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
   <div>
     <Label>Frequency</Label>
     <SearchableSelect
@@ -993,6 +1027,18 @@ const handleSaveAndPrint = async () => {
     </div>
   </div>
   <div>
+    <Label>Route</Label>
+    <SearchableSelect
+      options={ROUTES.map((r) => r.en)}
+      value={med.route}
+      onChange={(v) => {
+        setMed(i, "route", v);
+        setMed(i, "routeUrdu", urduFor(ROUTES, v));
+      }}
+      placeholder="By mouth"
+    />
+  </div>
+  <div>
     <Label>Duration</Label>
     <SearchableSelect
       options={DURATIONS_MED.map((d) => d.en)}
@@ -1016,11 +1062,13 @@ const handleSaveAndPrint = async () => {
       placeholder="After meal"
     />
   </div>
+  
 </div>
                 <div style={{ marginBottom: "6px" }}><span style={langBadge("ur")}>اردو</span></div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", background: "#f0f7ff", borderRadius: "8px", padding: "10px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: "10px", background: "#f0f7ff", borderRadius: "8px", padding: "10px" }}>
                   <div><Label>تعداد</Label><input value={med.frequencyUrdu} onChange={(e) => setMed(i, "frequencyUrdu", e.target.value)} placeholder="دن میں دو بار" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
                   <div><Label>خوراک</Label><input value={med.dosageUrdu} onChange={(e) => setMed(i, "dosageUrdu", e.target.value)} placeholder="۵ ملی لیٹر" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
+                  <div><Label>طریقہ</Label><input value={med.routeUrdu} onChange={(e) => setMed(i, "routeUrdu", e.target.value)} placeholder="منہ کے ذریعے" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
                   <div><Label>مدت</Label><input value={med.durationUrdu} onChange={(e) => setMed(i, "durationUrdu", e.target.value)} placeholder="۷ دن" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
                   <div><Label>ہدایت</Label><input value={med.instructionUrdu} onChange={(e) => setMed(i, "instructionUrdu", e.target.value)} placeholder="کھانے کے بعد" dir="rtl" style={{ ...inputSt, fontFamily: "serif" }} /></div>
                 </div>

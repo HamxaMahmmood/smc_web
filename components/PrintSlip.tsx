@@ -8,6 +8,8 @@ interface Medication {
   dosage: string;
   duration: string;
   instruction: string;
+  route?: string;
+  routeUrdu?: string;
   frequencyUrdu?: string;
   dosageUrdu?: string;
   durationUrdu?: string;
@@ -232,7 +234,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10pt" }}>
             <thead>
               <tr style={{ background: "#1a3a6b", color: "white" }}>
-                {["Sr.", "Drug", "Frequency", "Dosage", "Duration", "Instruction"].map((h) => (
+                {["Sr.", "Drug", "Frequency", "Dosage", "Route", "Duration", "Instruction"].map((h) => (
                   <th key={h} style={{ padding: "2mm 3mm", textAlign: "left", fontWeight: "bold", fontSize: "9.5pt", border: "1px solid #1a3a6b" }}>{h}</th>
                 ))}
               </tr>
@@ -244,6 +246,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
                   <td style={{ ...tdS, fontWeight: "600" }}>{med.drug}</td>
                   <td style={tdS}><BiCell en={med.frequency} ur={med.frequencyUrdu} /></td>
                   <td style={tdS}><BiCell en={med.dosage} ur={med.dosageUrdu} /></td>
+                  <td style={tdS}><BiCell en={med.route || ""} ur={med.routeUrdu} /></td>
                   <td style={tdS}><BiCell en={med.duration} ur={med.durationUrdu} /></td>
                   <td style={tdS}><BiCell en={med.instruction} ur={med.instructionUrdu} /></td>
                 </tr>
@@ -283,7 +286,7 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
                 <ul style={{ margin: 0, paddingRight: "4mm", paddingLeft: 0 }}>
                   {section.lines.map((line, j) => (
                     <li key={j} style={{
-                      fontSize: "8.5pt", marginBottom: "0.5mm",
+                      fontSize: "8.5pt", marginBottom: "2.5mm",
                       fontFamily: "'Noto Nastaliq Urdu', serif",
                     }}>
                       {line}
