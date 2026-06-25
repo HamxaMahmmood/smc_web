@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const generic = (body.generic || "").toString().trim();
-    const brand = (body.brand || "").toString().trim();
+    const brand   = (body.brand    || "").toString().trim();
+    const pkg     = (body.package  || "").toString().trim();
 
     if (!generic) {
       return NextResponse.json(
@@ -38,18 +39,28 @@ export async function POST(req: NextRequest) {
     });
 
     if (!medicine) {
-      medicine = new Medicine({ generic, brands: brand ? [brand] : [] });
+      medicine = new Medicine({
+        generic,
+        brands:   brand ? [brand] : [],
+        packages: pkg   ? [pkg]   : [],
+      });
       await medicine.save();
-    } else if (brand) {
-      const alreadyExists = medicine.brands.some(
-        (b: string) => b.toLowerCase() === brand.toLowerCase()
-      );
-      if (!alreadyExists) {
-        medicine.brands.push(brand);
-        await medicine.save();
+    } else {
+      let changed = false;
+      if (brand) {
+        const exists = medicine.brands.some(
+          (b: string) => b.toLowerCase() === brand.toLowerCase()
+        );
+        if (!exists) { medicine.brands.push(brand); changed = true; }
       }
+      if (pkg) {
+        const exists = medicine.packages.some(
+          (p: string) => p.toLowerCase() === pkg.toLowerCase()
+        );
+        if (!exists) { medicine.packages.push(pkg); changed = true; }
+      }
+      if (changed) await medicine.save();
     }
-
     return NextResponse.json({ success: true, data: medicine }, { status: 200 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -65,8 +76,10 @@ export async function DELETE(req: NextRequest) {
     const generic = (searchParams.get("generic") || "").trim();
     const brand   = (searchParams.get("brand")   || "").trim();
 
-    if (!generic || !brand) {
-      return NextResponse.json({ success: false, error: "Generic and brand are required" }, { status: 400 });
+    const pkg   = (searchParams.get("package") || "").trim();
+
+    if (!generic || (!brand && !pkg)) {
+      return NextResponse.json({ success: false, error: "Generic and either brand or package are required" }, { status: 400 });
     }
 
     const medicine = await Medicine.findOne({
@@ -76,9 +89,16 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Generic not found" }, { status: 404 });
     }
 
-    medicine.brands = medicine.brands.filter(
-      (b: string) => b.toLowerCase() !== brand.toLowerCase()
-    );
+    if (brand) {
+      medicine.brands = medicine.brands.filter(
+        (b: string) => b.toLowerCase() !== brand.toLowerCase()
+      );
+    }
+    if (pkg) {
+      medicine.packages = medicine.packages.filter(
+        (p: string) => p.toLowerCase() !== pkg.toLowerCase()
+      );
+    }
     await medicine.save();
 
     return NextResponse.json({ success: true, data: medicine }, { status: 200 });

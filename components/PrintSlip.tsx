@@ -47,6 +47,11 @@ const CLINICS: Record<string, { name: string; detail: string; phone: string }> =
     detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM (Monday to Saturday) " ,
     phone: "041 8848024",
   },
+  Online: {
+    name: "TeleConsultation",
+    detail: "Timings: 5:00 PM – 10:00 PM",
+    phone: "0333-6507982",
+  }
 };
 
 export default function PrintSlip({ patient }: PrintSlipProps) {

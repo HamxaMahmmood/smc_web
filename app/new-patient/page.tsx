@@ -20,6 +20,11 @@ const CLINICS = [
     name: "Siddique Executive Clinic Gulistan Colony, Faisalabad",
     detail: "Reg # PHC R-95991  ·  Timings: 5:00 PM – 7:00 PM",
   },
+  {
+    id: "Online",
+    name: "TeleConsultation (Online)",
+    detail: "Timings: 5:00 PM – 10:00 PM",
+  }
 ];
 
 const COMPLAINTS = [
@@ -115,80 +120,9 @@ const INVESTIGATIONS = [
   "Serum Immunoglobulins (IgG, IgA, IgM)","Antinuclear Antibody (ANA)",
 ];
 
-interface MedEntry { generic: string; brands: string[]; }
+interface MedEntry { generic: string; brands: string[]; packages: string[]; }
 
-// ─── Hardcoded package/strength options, shared across all medicines ───
-const TABLET_CAPSULE_STRENGTHS = [
-  "2.5mg","5mg","10mg","20mg","25mg","40mg","50mg","75mg","80mg","100mg",
-  "125mg","150mg","200mg","250mg","300mg","400mg","500mg","600mg","750mg","800mg","1000mg",
-];
-const CHEWABLE_STRENGTHS = ["2mg","4mg","5mg","10mg"];
-const DISPERSIBLE_STRENGTHS = ["10mg","20mg","50mg","100mg"];
 
-const SYRUP_STRENGTHS = [
-  "60mg/5ml","100mg/5ml","120mg/5ml","125mg/5ml","150mg/5ml","160mg/5ml",
-  "200mg/5ml","228mg/5ml","250mg/5ml","400mg/5ml","457mg/5ml",
-];
-const SYRUP_VOLUMES = ["15ml","30ml","60ml","100ml","120ml","200ml"];
-
-const DROPS_STRENGTHS = ["10mg/ml","15mg/ml","20mg/ml","40mg/ml","50mg/ml","80mg"];
-const DROPS_VOLUMES = ["10ml","15ml","30ml"];
-
-const INJECTION_STRENGTHS = [
-  "1mg/ml","2mg/ml","5mg/ml","10mg/ml","20mg/ml","25mg/ml","40mg/ml","50mg/ml",
-  "100mg/ml","250mg","500mg","1g","2g",
-];
-const INJECTION_VOLUMES = ["1ml Ampoule","2ml Ampoule","5ml Vial","10ml Vial","Vial (Lyophilized)"];
-
-const TOPICAL_FORMS = ["Cream","Ointment","Gel","Lotion"];
-const TOPICAL_PERCENT = ["0.025%","0.05%","0.1%","0.5%","1%","2%","5%","10%"];
-const TOPICAL_SIZES = ["15g","30g","50g"];
-
-const INHALER_STRENGTHS = ["50mcg","100mcg","125mcg","200mcg","250mcg"];
-const NEB_STRENGTHS = ["0.25mg/2ml","0.5mg/2ml","1.25mg/2.5ml","2.5mg/2.5ml","5mg/2.5ml"];
-
-const SUPPOSITORY_STRENGTHS = ["60mg","80mg","125mg","150mg","250mg","325mg","500mg"];
-const SACHET_STRENGTHS = ["1g","2g","3.5g","4g","5g","10g"];
-
-const EYE_PERCENT = ["0.1%","0.3%","0.5%","1%","2%","3%"];
-const EYE_VOLUMES = ["5ml","10ml"];
-const EAR_PERCENT = ["0.1%","0.3%","0.5%","1%","2%","3%"];
-
-function buildPackages(): string[] {
-  const out: string[] = [];
-
-  TABLET_CAPSULE_STRENGTHS.forEach((s) => out.push(`${s} Tablet`));
-  TABLET_CAPSULE_STRENGTHS.forEach((s) => out.push(`${s} Capsule`));
-  CHEWABLE_STRENGTHS.forEach((s) => out.push(`${s} Chewable Tablet`));
-  DISPERSIBLE_STRENGTHS.forEach((s) => out.push(`${s} Dispersible Tablet`));
-
-  SYRUP_STRENGTHS.forEach((s) => SYRUP_VOLUMES.forEach((v) => out.push(`${s} Syrup (${v})`)));
-  SYRUP_STRENGTHS.forEach((s) => SYRUP_VOLUMES.forEach((v) => out.push(`${s} Suspension (${v})`)));
-
-  DROPS_STRENGTHS.forEach((s) => DROPS_VOLUMES.forEach((v) => out.push(`${s} Drops (${v})`)));
-
-  INJECTION_STRENGTHS.forEach((s) => INJECTION_VOLUMES.forEach((v) => out.push(`${s} Injection (${v})`)));
-
-  TOPICAL_FORMS.forEach((form) =>
-    TOPICAL_PERCENT.forEach((p) =>
-      TOPICAL_SIZES.forEach((sz) => out.push(`${p} ${form} (${sz})`))
-    )
-  );
-
-  INHALER_STRENGTHS.forEach((s) => out.push(`${s} Inhaler (200 doses)`));
-  NEB_STRENGTHS.forEach((s) => out.push(`${s} Nebulization Solution`));
-  SUPPOSITORY_STRENGTHS.forEach((s) => out.push(`${s} Suppository`));
-  SACHET_STRENGTHS.forEach((s) => out.push(`${s} Sachet`));
-
-  EYE_PERCENT.forEach((p) => EYE_VOLUMES.forEach((v) => out.push(`${p} Eye Drops (${v})`)));
-  EAR_PERCENT.forEach((p) => out.push(`${p} Ear Drops (10ml)`));
-
-  out.push("As directed");
-
-  return out;
-}
-
-const PACKAGES: string[] = buildPackages();
 
 
 // ── Frequency ──
@@ -205,42 +139,38 @@ const FREQUENCIES: { en: string; ur: string }[] = [
   { en: "In the morning",         ur: "صبح کے وقت" },
   { en: "Alternate days",         ur: "ایک دن چھوڑ کر" },
   { en: "Weekly",                 ur: "ہفتے میں ایک بار" },
+  { en: "Single dose",       ur: "صرف ایک بار" },
 ];
 
 // ── Dosage ──
-const DOSAGES: { en: string; ur: string }[] = [
-  { en: "1 drop",            ur: "۱ قطرہ" },
-  { en: "2 drops",           ur: "۲ قطرے" },
-  { en: "3 drops",           ur: "۳ قطرے" },
-  { en: "4 drops",           ur: "۴ قطرے" },
-  { en: "5 drops",           ur: "۵ قطرے" },
-  { en: "6 drops",           ur: "۶ قطرے" },
-  { en: "7 drops",           ur: "۷ قطرے" },
-  { en: "8 drops",           ur: "۸ قطرے" },
-  { en: "9 drops",           ur: "۹ قطرے" },
-  { en: "10 drops",          ur: "۱۰ قطرے" },
+// ── Dosage ──
+const DOSAGE_AMOUNTS: { en: string; ur: string }[] = [
+  { en: "½",   ur: "آدھا" },
+  { en: "1",   ur: "۱" },
+  { en: "1.5", ur: "۱.۵" },
+  { en: "2",   ur: "۲" },
+  { en: "2.5", ur: "۲.۵" },
+  { en: "3",   ur: "۳" },
+  { en: "4",   ur: "۴" },
+  { en: "5",   ur: "۵" },
+  { en: "6",   ur: "۶" },
+  { en: "7",   ur: "۷" },
+  { en: "7.5", ur: "۷.۵" },
+  { en: "8",   ur: "۸" },
+  { en: "9",   ur: "۹" },
+  { en: "10",  ur: "۱۰" },
+  { en: "15",  ur: "۱۵" },
+];
 
-
-
-  { en: "0.5 ml",            ur: "۰.۵ ملی لیٹر" },
-  { en: "1 ml",            ur: "۱ ملی لیٹر" },
-  { en: "2 ml",            ur: "۲ ملی لیٹر" },
-  { en: "2.5 ml",          ur: "۲.۵ ملی لیٹر" },
-  { en: "3 ml",            ur: "۳ ملی لیٹر" },
-  { en: "4 ml",            ur: "۴ ملی لیٹر" },
-  { en: "5 ml",            ur: "۵ ملی لیٹر" },
-  { en: "7.5 ml",          ur: "۷.۵ ملی لیٹر" },
-  { en: "10 ml",           ur: "۱۰ ملی لیٹر" },
-  { en: "15 ml",           ur: "۱۵ ملی لیٹر" },
-  { en: "Half tablet (½)", ur: "آدھی گولی" },
-  { en: "One tablet (1)",  ur: "ایک گولی" },
-  { en: "Two tablets (2)", ur: "دو گولیاں" },
-  { en: "One capsule",     ur: "ایک کیپسول" },
-  { en: "Two capsules",    ur: "دو کیپسول" },
-  { en: "1 puff",          ur: "ایک پف" },
-  { en: "2 puffs",         ur: "دو پف" },
-  { en: "One sachet",      ur: "ایک ساشے" },
-  { en: "As directed",     ur: "ڈاکٹر کی ہدایت کے مطابق" },
+const DOSAGE_UNITS: { en: string; ur: string }[] = [
+  { en: "drop",        ur: "قطرہ" },
+  { en: "ml",          ur: "ملی لیٹر" },
+  { en: "tablet",      ur: "گولی" },
+  { en: "injection",      ur: "انجکشن" },
+  { en: "capsule",     ur: "کیپسول" },
+  { en: "puff",        ur: "پف" },
+  { en: "sachet",      ur: "ساشے" },
+  { en: "As directed", ur: "ڈاکٹر کی ہدایت کے مطابق" },
 ];
 
 // ── Duration ──
@@ -362,6 +292,7 @@ const INSTRUCTIONS: { en: string; ur: string }[] = [
 
 
   { en: "Apply on skin",           ur: "جلد پر لگائیں" },
+  { en: "Intramuscular injection",     ur: "پٹھے میں انجکشن  لگائیں  " },
   { en: "Before meal",           ur: "کھانے سے پہلے" },
   { en: "After meal",            ur: "کھانے کے بعد" },
   { en: "With meal",             ur: "کھانے کے ساتھ" },
@@ -396,6 +327,7 @@ function urduFor(
 interface ComplaintEntry { symptom: string; duration: string; }
 interface Medication {
   generic: string; brand: string; package: string;
+  dosageAmount: string; dosageUnit: string;
   frequency: string; dosage: string; duration: string; instruction: string;
   frequencyUrdu: string; dosageUrdu: string; durationUrdu: string; instructionUrdu: string;
 }
@@ -423,6 +355,7 @@ interface PatientForm {
 const emptyComplaint = (): ComplaintEntry => ({ symptom: "", duration: "" });
 const emptyMed = (): Medication => ({
   generic: "", brand: "", package: "",
+  dosageAmount: "", dosageUnit: "",
   frequency: "", dosage: "", duration: "", instruction: "",
   frequencyUrdu: "", dosageUrdu: "", durationUrdu: "", instructionUrdu: "",
 });
@@ -466,9 +399,10 @@ useEffect(() => {
     .then((json) => {
       if (json.success) {
         setMedicineBank(
-          json.data.map((m: { generic: string; brands: string[] }) => ({
+          json.data.map((m: { generic: string; brands: string[]; packages: string[] }) => ({
             generic: m.generic,
             brands: m.brands,
+            packages: m.packages || [],
           }))
         );
       }
@@ -533,7 +467,27 @@ const setMedGeneric = (i: number, val: string) => {
     return { ...f, medications: m };
   });
 };
+const handleDosageChange = (i: number, field: "dosageAmount" | "dosageUnit", val: string) => {
+  setForm((f) => {
+    const m = [...f.medications];
+    const updated = { ...m[i], [field]: val };
+    const amount = field === "dosageAmount" ? val : updated.dosageAmount;
+    const unit   = field === "dosageUnit"   ? val : updated.dosageUnit;
 
+    if (unit === "As directed") {
+      updated.dosage     = "As directed";
+      updated.dosageUrdu = "ڈاکٹر کی ہدایت کے مطابق";
+    } else {
+      const amountUr = DOSAGE_AMOUNTS.find((a) => a.en === amount)?.ur ?? amount;
+      const unitUr   = DOSAGE_UNITS.find((u) => u.en === unit)?.ur   ?? unit;
+      updated.dosage     = [amount, unit].filter(Boolean).join(" ");
+      updated.dosageUrdu = [amountUr, unitUr].filter(Boolean).join(" ");
+    }
+
+    m[i] = updated;
+    return { ...f, medications: m };
+  });
+};
   const addMed = () => setForm((f) => ({ ...f, medications: [...f.medications, emptyMed()] }));
   const removeMed = (i: number) => setForm((f) => ({ ...f, medications: f.medications.filter((_, idx) => idx !== i) }));
 
@@ -1000,7 +954,7 @@ const handleSaveAndPrint = async () => {
                   
                   <div><Label>Generic Name</Label><SearchableSelect options={medicineBank.map((m) => m.generic)} value={med.generic} onChange={(v) => setMedGeneric(i, v)} placeholder="e.g. Amoxicillin" /></div>
                   <div><Label>Brand Name (Pakistan)</Label><SearchableSelect options={entry?.brands || []} value={med.brand} onChange={(v) => setMed(i, "brand", v)} placeholder="e.g. Amoxil" /></div>
-                  <div><Label>Package / Strength</Label><SearchableSelect options={PACKAGES} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="e.g. 125mg/5ml" /></div>
+                  <div><Label>Package / Strength</Label><SearchableSelect options={entry?.packages || []} value={med.package} onChange={(v) => setMed(i, "package", v)} placeholder="Type or select a package..." /></div>
                 </div>
               {/* English */}
 <div style={{ marginBottom: "6px" }}><span style={langBadge("en")}>English</span></div>
@@ -1017,17 +971,26 @@ const handleSaveAndPrint = async () => {
       placeholder="Twice a day"
     />
   </div>
-  <div>
+ <div>
     <Label>Dosage</Label>
-    <SearchableSelect
-      options={DOSAGES.map((d) => d.en)}
-      value={med.dosage}
-      onChange={(v) => {
-        setMed(i, "dosage", v);
-        setMed(i, "dosageUrdu", urduFor(DOSAGES, v));
-      }}
-      placeholder="5 ml"
-    />
+    <div style={{ display: "flex", gap: "5px" }}>
+      <div style={{ flex: "0 0 36%" }}>
+        <SearchableSelect
+          options={DOSAGE_AMOUNTS.map((a) => a.en)}
+          value={med.dosageAmount}
+          onChange={(v) => handleDosageChange(i, "dosageAmount", v)}
+          placeholder="1"
+        />
+      </div>
+      <div style={{ flex: 1 }}>
+        <SearchableSelect
+          options={DOSAGE_UNITS.map((u) => u.en)}
+          value={med.dosageUnit}
+          onChange={(v) => handleDosageChange(i, "dosageUnit", v)}
+          placeholder="ml"
+        />
+      </div>
+    </div>
   </div>
   <div>
     <Label>Duration</Label>

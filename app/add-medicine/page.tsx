@@ -8,12 +8,14 @@ interface MedicineRecord {
   _id?: string;
   generic: string;
   brands: string[];
+  packages: string[]; 
 }
 
 export default function AddMedicinePage() {
   const [medicines, setMedicines] = useState<MedicineRecord[]>([]);
   const [generic, setGeneric] = useState("");
   const [brand, setBrand] = useState("");
+  const [pkg, setPkg] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
@@ -52,7 +54,7 @@ export default function AddMedicinePage() {
       const res = await fetch("/api/medicines", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ generic: generic.trim(), brand: brand.trim() }),
+        body: JSON.stringify({ generic: generic.trim(), brand: brand.trim(), package: pkg.trim() }),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to add medicine");
@@ -64,6 +66,7 @@ export default function AddMedicinePage() {
       );
       setGeneric(generic.trim());
       setBrand("");
+      setPkg("");
       await loadMedicines();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong");
@@ -82,6 +85,23 @@ const handleDeleteBrand = async (generic: string, brand: string) => {
     const json = await res.json();
     if (!json.success) throw new Error(json.error || "Failed to delete");
     setSuccess(`Removed "${brand}" from ${generic}.`);
+    await loadMedicines();
+  } catch (e: unknown) {
+    setError(e instanceof Error ? e.message : "Something went wrong");
+  }
+};
+
+const handleDeletePackage = async (generic: string, pkg: string) => {
+  setError("");
+  setSuccess("");
+  try {
+    const res = await fetch(
+      `/api/medicines?generic=${encodeURIComponent(generic)}&package=${encodeURIComponent(pkg)}`,
+      { method: "DELETE" }
+    );
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || "Failed to delete");
+    setSuccess(`Removed "${pkg}" from ${generic}.`);
     await loadMedicines();
   } catch (e: unknown) {
     setError(e instanceof Error ? e.message : "Something went wrong");
@@ -111,7 +131,7 @@ const handleDeleteBrand = async (generic: string, brand: string) => {
             💊 New Generic / Brand
           </h3>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "8px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px", marginBottom: "8px" }}>
             <div>
               <label style={labelSt}>Generic Name *</label>
               <SearchableSelect
@@ -128,6 +148,15 @@ const handleDeleteBrand = async (generic: string, brand: string) => {
                 value={brand}
                 onChange={setBrand}
                 placeholder="e.g. Amoxil"
+              />
+            </div>
+            <div>
+              <label style={labelSt}>Package / Strength</label>
+              <SearchableSelect
+                options={existingGeneric?.packages || []}
+                value={pkg}
+                onChange={setPkg}
+                placeholder="e.g. 125mg/5ml Syrup"
               />
             </div>
           </div>
@@ -189,13 +218,52 @@ const handleDeleteBrand = async (generic: string, brand: string) => {
         </span>
       ))}
     </div>
+  
+    
   ) : (
     <span style={{ fontSize: "12.5px", color: "#9ca3af" }}>No brands yet</span>
   )}
 </div>
+
+{/* Packages */}
+                {m.packages && m.packages.length > 0 && (
+                  <div style={{ marginTop: "6px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                      Strengths / Packages
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                      {m.packages.map((p) => (
+                        <span
+                          key={p}
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "4px",
+                            background: "#f0fdf4", border: "1px solid #bbf7d0",
+                            padding: "2px 6px 2px 10px", borderRadius: "12px",
+                            fontSize: "12px", color: "#166534",
+                          }}
+                        >
+                          {p}
+                          <button
+                            onClick={() => handleDeletePackage(m.generic, p)}
+                            title={`Remove ${p}`}
+                            style={{
+                              background: "none", border: "none", cursor: "pointer",
+                              color: "#dc2626", fontSize: "15px", fontWeight: "700",
+                              lineHeight: 1, padding: "0 2px",
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
+
+          
         </div>
       </div>
     </div>
