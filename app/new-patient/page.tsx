@@ -127,18 +127,17 @@ interface MedEntry { generic: string; brands: string[]; packages: string[]; }
 
 // ── Frequency ──
 const FREQUENCIES: { en: string; ur: string }[] = [
-  { en: "Once a day (OD)",        ur: "دن میں ایک بار" },
-  { en: "Twice a day (BD)",       ur: "دن میں دو بار" },
-  { en: "Three times a day (TDS)",ur: "دن میں تین بار" },
+  { en: "Twice a day (BD)", ur: "صبح و شام" },
+  { en: "Three times a day (TDS)", ur: "صبح، دوپہر، شام" },
+  { en: "Once At night (HS)",          ur: "رات سونے سے پہلے" },
+  { en: "Once In the morning",         ur: "ایک بار صبح کے وقت" },
+  { en: "Alternate days",         ur: "ایک دن چھوڑ کر" },
   { en: "Stat dose", ur: "صرف ایک ہی دفعہ" },
   { en: "Four times a day (QDS)", ur: "دن میں چار بار" },
   { en: "Every 6 hours",          ur: "ہر ۶ گھنٹے بعد" },
   { en: "Every 8 hours",          ur: "ہر ۸ گھنٹے بعد" },
   { en: "Every 12 hours",         ur: "ہر ۱۲ گھنٹے بعد" },
   { en: "Every 4-6 hours (PRN)",  ur: "ضرورت پر ہر ۴ تا ۶ گھنٹے بعد" },
-  { en: "At night (HS)",          ur: "رات سونے سے پہلے" },
-  { en: "In the morning",         ur: "صبح کے وقت" },
-  { en: "Alternate days",         ur: "ایک دن چھوڑ کر" },
   { en: "Weekly",                 ur: "ہفتے میں ایک بار" },
   { en: "Monthly", ur: "مہینے میں ایک بار" },
 
