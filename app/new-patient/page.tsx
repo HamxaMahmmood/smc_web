@@ -369,7 +369,7 @@ interface PatientForm {
   name: string;
   gender: "Male" | "Female" | "Other";
   ageValue: string;
-  ageUnit: "Years" | "Months";
+  ageUnit: "Year" | "Month" | "Day";
   contact: string;
   address: string;
   complaints: ComplaintEntry[];
@@ -394,7 +394,7 @@ const emptyMed = (): Medication => ({
 });
 const initialForm: PatientForm = {
   clinic: "islamabad",
-  name: "", gender: "Male", ageValue: "", ageUnit: "Years",
+  name: "", gender: "Male", ageValue: "", ageUnit: "Year",
   contact: "", address: "",
   complaints: [emptyComplaint()],
   gpe: GPE_DEFAULT, systemic: SYSTEMIC_DEFAULT,
@@ -809,7 +809,7 @@ const handleSaveAndPrint = async () => {
     </button>
     {form.isReturning && (
       <button
-        onClick={() => setForm((f) => ({ ...f, isReturning: false, returningMrNumber: "", name: "", gender: "Male", ageValue: "", ageUnit: "Years", contact: "", address: "" }))}
+        onClick={() => setForm((f) => ({ ...f, isReturning: false, returningMrNumber: "", name: "", gender: "Male", ageValue: "", ageUnit: "Year", contact: "", address: "" }))}
         style={{ padding: "9px 12px", borderRadius: "7px", border: "none", background: "#fee2e2", color: "#dc2626", fontWeight: "600", fontSize: "13px", cursor: "pointer" }}
       >
         ✕ Clear
@@ -836,8 +836,8 @@ const handleSaveAndPrint = async () => {
               <Label>Age *</Label>
               <div style={{ display: "flex", gap: "6px" }}>
                 <input type="number" min="0" value={form.ageValue} onChange={(e) => setForm((f) => ({ ...f, ageValue: e.target.value }))} placeholder="e.g. 3" style={{ ...inputSt, width: "55%" }} />
-                <select value={form.ageUnit} onChange={(e) => setForm((f) => ({ ...f, ageUnit: e.target.value as "Years" | "Months" }))} style={{ ...inputSt, width: "45%", padding: "9px 6px" }}>
-                  <option>Years</option><option>Months</option>
+                <select value={form.ageUnit} onChange={(e) => setForm((f) => ({ ...f, ageUnit: e.target.value as "Year" | "Month" | "Day" }))} style={{ ...inputSt, width: "45%", padding: "9px 6px" }}>
+                  <option>Year</option><option>Month</option><option>Day</option>
                 </select>
               </div>
             </div>

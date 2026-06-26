@@ -76,9 +76,9 @@ export default function PrintSlip({ patient }: PrintSlipProps) {
   let gpeText = "";
   let systemicText = "";
   if (patient.clinicalExamination) {
-    const gpeMatch = patient.clinicalExamination.match(/GPE:\s*([\s\S]*?)(?:\n\nSystemic:|$)/);
+    const gpeMatch = patient.clinicalExamination.match(/GPE:\s*([\s\S]*?)$/);
     const sysMatch = patient.clinicalExamination.match(/Systemic:\s*([\s\S]*?)$/);
-    gpeText = gpeMatch ? gpeMatch[1].trim() : patient.clinicalExamination;
+    gpeText = gpeMatch ? gpeMatch[1].trim() : "";
     systemicText = sysMatch ? sysMatch[1].trim() : "";
   }
 
